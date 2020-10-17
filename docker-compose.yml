@@ -20,3 +20,4 @@ services:
     build: ./latex
     volumes:
       - ./res/:/res
+      - ./latex/oauth2.tex/:/latex/oauth2.tex
