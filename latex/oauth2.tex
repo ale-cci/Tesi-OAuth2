@@ -23,7 +23,16 @@
 %[nextsection]
 \section{Introduction}
 \subsection{The problem}
+Let's imagine that we have a server that manages a vast list of products.
+Those products could be searched, filtered and sorted by different fields, like the name, color, insertion date and so on.
+The search query is submitted, the server returns a web page with the products, represented in a tabular fashion.
 
+The server becomes popular and is used by million of users, and you start to think that sharing those search results
+could be a cool feature.
+
+We want to use third party API to integrate this feture.
+
+\subsubsection{Possible solutions}
 Necessity of communication between client and server.
 Different ways to achieve the goal, here are a few of them:
 \begin{enumerate}
@@ -37,23 +46,38 @@ Different ways to achieve the goal, here are a few of them:
 \$ curl -u Aladdin:OpenSesamus -v http://localhost:8080/basic
 
 > GET / HTTP/1.1
-> Host: google.com
+> Host: localhost:8080
 > Authorization: Basic QWxhZGRpbjpPcGVuU2VzYW11cw==
 > User-Agent: curl/7.72.0
 > Accept: */*
 ...
     \end{alltt}
+    Since the credentials are neither hashed nor encrypted, your username and password are always visible by
+    someone who could read the headers.
+    Therefore this protocol requires an https channel in order to be somewhat secure.
 
-    \item Authentication with PEM keys
-    \item OAuth protocol
+    \item Authorization via asymmetric cryptography. Two keys are generate a public and a secret one.
+        The public key is, as the name suggests, public and everyone could read it.
+        The client encodes his messages with the private key; the receivers could validate the authenticity of
+        those messages using the public key.
+
+        This is one of the safest methods, but it's not viable as we need to distribute in some way the private key to
+        trusted users.
+
+    \item Assign an authorization token at each client where it could be used for API requests
     \begin{alltt}
-\$ curl -v -X POST --header 'Authorization: Bearer 1234'
+\$ curl -v --header 'Authorization: Bearer 1234' http://localhost:8080/api
+
 > GET / HTTP/1.1
-> Host: www.google.com
+> Host: localhost:8080
 > User-Agent: curl/7.72.0
 > Accept: */*
 > Authorization: Bearer 1234
+...
     \end{alltt}
+    The token could be in different states: valid, expired, revoked, invalid.
+
+    OAuth2 provides a secure way to obtain and exchange these tokens.
 \end{enumerate}
 
 
@@ -95,9 +119,16 @@ Different ways to achieve the goal, here are a few of them:
 Something something
 
 \section{SSO with OpenID}
+\subsection{Second problem}
+We want to delegate the process of authentication of username and password to an external service, then if the user
+is registered in our platform we allow him in.
+
 \subsection{JWT}
+Shorthand JSON Web Token, encoded token that contains the necessary informations to identify the user.
 \subsection{JWS e JWE}
-\subsection{Validazione JWS}
+Token could be signed, encrypted or both.
+
+\subsection{JWS Validation}
 Verify the SHA256 signature
 
 \begin{thebibliography}{9}
