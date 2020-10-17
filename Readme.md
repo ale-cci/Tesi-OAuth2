@@ -2,8 +2,8 @@
 > Working Progress
 
 ##### Dependencies
-* docker
-* docker-compose
+* docker-compose: start jupyter notebook presentation
+* xelatex: compile pdf
 
 ##### Start presentation
 ```sh
