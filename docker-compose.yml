@@ -15,3 +15,8 @@ services:
       - 8080:8080
     environment:
       PORT: 8080
+
+  xelatex:
+    build: ./latex
+    volumes:
+      - ./res/:/res

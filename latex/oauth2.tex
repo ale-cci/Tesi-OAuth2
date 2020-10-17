@@ -29,12 +29,12 @@ Different ways to achieve the goal, here are a few of them:
 \begin{enumerate}
     \item Directly send the user id to the server
     \begin{alltt}
-\$ curl -v -X POST http://google.com '\{"user-id": 1\}'
+\$ curl -v -X POST http://localhost:8080/db_auth '\{"user-id": 1\}'
     \end{alltt}
 
     \item Http Basic Auth: each API request is signed with a username and a passwrod, encoded in base64
     \begin{alltt}
-\$ curl -u Aladdin:OpenSesamus -v https://google.com
+\$ curl -u Aladdin:OpenSesamus -v http://localhost:8080/basic
 
 > GET / HTTP/1.1
 > Host: google.com
@@ -46,6 +46,14 @@ Different ways to achieve the goal, here are a few of them:
 
     \item Authentication with PEM keys
     \item OAuth protocol
+    \begin{alltt}
+\$ curl -v -X POST --header 'Authorization: Bearer 1234'
+> GET / HTTP/1.1
+> Host: www.google.com
+> User-Agent: curl/7.72.0
+> Accept: */*
+> Authorization: Bearer 1234
+    \end{alltt}
 \end{enumerate}
 
 
@@ -83,6 +91,8 @@ Different ways to achieve the goal, here are a few of them:
     \centering
     \includegraphics[width=.5\textwidth]{img/authorization-code.png}
 \end{figure}
+\subsection{Revoke an access token}
+Something something
 
 \section{SSO with OpenID}
 \subsection{JWT}

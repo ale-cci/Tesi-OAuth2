@@ -3,12 +3,16 @@
 
 ##### Dependencies
 * docker-compose: start jupyter notebook presentation
-* xelatex: compile pdf
+
+##### Compile tex files
+```sh
+$ docker-compose up xelatex
+```
 
 ##### Start presentation
 ```sh
-$ docker-compose up --build -d      # Start notebook
-$ docker-compose logs notebook      # Copy access token login in via web
+$ docker-compose up --build -d notebook server     # Start notebook
+$ docker-compose logs notebook                     # Copy access token login in via web
 ```
 
 ##### Useful links
