@@ -2,11 +2,16 @@ version: '3'
 
 services:
   notebook:
-    build:
-      dockerfile: ./Dockerfile.notebook
-      context: .
+    build: ./notebook
     ports:
       - 3333:3333
 
     volumes:
-      - ./OAuth2-presentation.ipynb:/notebook/OAuth2-presentation.ipynb
+      - ./notebook/OAuth2-presentation.ipynb:/notebook/OAuth2-presentation.ipynb
+
+  server:
+    build: ./server
+    ports:
+      - 8080:8080
+    environment:
+      PORT: 8080
