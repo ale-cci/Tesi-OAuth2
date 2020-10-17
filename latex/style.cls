@@ -74,7 +74,9 @@
 \def\@maketitle{
     \begin{center}
         {\Huge Universita degli Studi di Parma}
-        \\[2em]
+        \\[2.5em]
+        \includegraphics{img/logo.png}
+        \\[2.5em]
         {\Large DIPARTIMENTO DI INGEGNERIA ED ARCHITETTURA}
         \\[1.5em]
         {\Large Corso di Laurea di ingegneria Informatica, Elettronica e delle Telecomunicazioni}

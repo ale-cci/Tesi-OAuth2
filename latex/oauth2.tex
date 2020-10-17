@@ -1,6 +1,8 @@
 %!TEX program = xelatex
 \documentclass{style}
 
+\usepackage{alltt}
+
 \setcounter{tocdepth}{2} % Show only sections in table of contents
 
 \title{OAuth2}
@@ -19,8 +21,80 @@
 
 % Document sections
 %[nextsection]
-\section{Prima sezione}
+\section{Introduction}
+\subsection{The problem}
 
+Necessity of communication between client and server.
+Different ways to achieve the goal, here are a few of them:
+\begin{enumerate}
+    \item Directly send the user id to the server
+    \begin{alltt}
+\$ curl -v -X POST http://google.com '\{"user-id": 1\}'
+    \end{alltt}
+
+    \item Http Basic Auth: each API request is signed with a username and a passwrod, encoded in base64
+    \begin{alltt}
+\$ curl -u Aladdin:OpenSesamus -v https://google.com
+
+> GET / HTTP/1.1
+> Host: google.com
+> Authorization: Basic QWxhZGRpbjpPcGVuU2VzYW11cw==
+> User-Agent: curl/7.72.0
+> Accept: */*
+...
+    \end{alltt}
+
+    \item Authentication with PEM keys
+    \item OAuth protocol
+\end{enumerate}
+
+
+\section{OAuth2 Protocol}
+\subsection{}
+
+\subsection{Obtain an access token}
+\begin{enumerate}
+    \item Redirect to an authorization provider.
+        \begin{alltt}
+    http://google.apis.com?response_type=code\&client_id...
+        \end{alltt}
+
+    \item If the authorization is successful, the oauth server will redirect to \lstinline{redirect_uri} passing a \lstinline{code}
+        as GET parameter. Otherwise \lstinline{error} contains the reason why the authorization was not successful.
+        \begin{alltt}
+    POST /oauth/token HTTP/1.1
+    Host: authorization-server.com
+
+    grant_type=authorization_code
+    &code=xxxxxxxxxxx
+    &redirect_uri=https://example-app.com/redirect
+    &client_id=xxxxxxxxxx
+    &client_secret=xxxxxxxxxx
+        \end{alltt}
+
+        \textit{If an authorization code is used more than once, the authorization server must deny the subsequent request.}
+
+    \item The client exchanges the \lstinline{code}, called also "grant token", with the server to obtain an \lstinline{access\_token}.
+    \item The server returns the access token with additional informations, such as expire date and JWT.
+    \item The client uses the access token for APIs requests.
+\end{enumerate}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=.5\textwidth]{img/authorization-code.png}
+\end{figure}
+
+\section{SSO with OpenID}
+\subsection{JWT}
+\subsection{JWS e JWE}
+\subsection{Validazione JWS}
+Verify the SHA256 signature
+
+\begin{thebibliography}{9}
+    \bibitem{google api dev}
+    Using OAuth 2.0 to Access Gooogle APIs
+    \\\texttt{https://developers.google.com/identity/protocols/oauth2}
+\end{thebibliography}
 
 \newpage
 \end{document}
