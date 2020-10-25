@@ -1,6 +1,6 @@
 %!TEX program = xelatex
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesClass{custom}[30/03/2020 v0.1 Custom class]
+\ProvidesClass{style}[30/03/2020 v0.1 Custom class]
 
 \LoadClass[a4paper]{article}
 \RequirePackage{xcolor}
@@ -97,7 +97,7 @@
         \hfill
         Corradi Alessandro
     }
-    \\[1em]
+    \bigskip
     \begin{center}
         {\Large A.A. 2019/2020}
     \end{center}
