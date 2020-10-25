@@ -31,67 +31,94 @@ The server becomes popular and is used by million of users, and you start to thi
 could be a cool feature.
 
 We want to use third party API to integrate this feture.
+% Necessity of communication between client and server.
 
-\subsubsection{Possible solutions}
-Necessity of communication between client and server.
 Different ways to achieve the goal, here are a few of them:
-\begin{enumerate}
-    \item Directly send the user id to the server
-    \begin{alltt}
-\$ curl -v -X POST http://localhost:8080/db_auth '\{"user-id": 1\}'
-    \end{alltt}
+\subsubsection{Direct transmission of the user identifier}
+Directly send the user id to the server
+\begin{alltt}
+    \$ curl -v -X POST http://localhost:8080/db_auth '\{"user-id": 1\}'
+\end{alltt}
+I do not want to sped too much time on this one. It is for sure one of the fastest
+and less secure way to communicate the user identity.
 
-    \item Http Basic Auth: each API request is signed with a username and a passwrod, encoded in base64
-    \begin{alltt}
-\$ curl -u Aladdin:OpenSesamus -v http://localhost:8080/basic
+Even someone with some basic knowledge of programming could recognize that by changing the
+value of \texttt{user-id}, the request would still be valid and you are recognized as
+another user.
 
-> GET / HTTP/1.1
-> Host: localhost:8080
-> Authorization: Basic QWxhZGRpbjpPcGVuU2VzYW11cw==
-> User-Agent: curl/7.72.0
-> Accept: */*
-...
-    \end{alltt}
-    Since the credentials are neither hashed nor encrypted, your username and password are always visible by
-    someone who could read the headers.
-    Therefore this protocol requires an https channel in order to be somewhat secure.
+\subsubsection{Http Basic Authentication}
+Http Basic Auth: each API request is signed with a username and a passwrod, encoded in base64
+\begin{alltt}
+    \$ curl -u Aladdin:OpenSesamus -v http://localhost:8080/basic
 
-    \item Authorization via asymmetric cryptography. Two keys are generate a public and a secret one.
-        The public key is, as the name suggests, public and everyone could read it.
-        The client encodes his messages with the private key; the receivers could validate the authenticity of
-        those messages using the public key.
+    > GET / HTTP/1.1
+    > Host: localhost:8080
+    > Authorization: Basic QWxhZGRpbjpPcGVuU2VzYW11cw==
+    > User-Agent: curl/7.72.0
+    > Accept: */*
+    ...
+\end{alltt}
+Since the credentials are neither hashed nor encrypted, your username and password are always visible by
+someone who could read the headers.
+Therefore this protocol requires an https channel in order to be somewhat secure.
 
-        This is one of the safest methods, but it's not viable as we need to distribute in some way the private key to
-        trusted users.
+\subsubsection{Public/Private Key}
+\begin{alltt}
+    \$ ssh-keygen -v
+    The key fingerprint is:
+    SHA256:tFKUq1HLfJ3Iy6toGec804dKXPgx4P6rrL6Tc4S0wVY ale-cci@vagrant
 
-    \item Assign an authorization token at each client where it could be used for API requests
-    \begin{alltt}
-\$ curl -v --header 'Authorization: Bearer 1234' http://localhost:8080/api
+    The key's randomart image is:
+    +---[RSA 3072]----+
+    |        ..       |
+    |       .E        |
+    |     . =++ o .   |
+    |      *+=++ o    |
+    |     o.*So+.     |
+    |      =+oooo     |
+    |       O+..o     |
+    |      *+*.+ .    |
+    |     o=*=*oo     |
+    +----[SHA256]-----+
 
-> GET / HTTP/1.1
-> Host: localhost:8080
-> User-Agent: curl/7.72.0
-> Accept: */*
-> Authorization: Bearer 1234
-...
-    \end{alltt}
-    The token could be in different states: valid, expired, revoked, invalid.
 
-    OAuth2 provides a secure way to obtain and exchange these tokens.
-\end{enumerate}
+    \$ ssh-copy-id -i ~/.ssh/id_rsa username@host
+\end{alltt}
+Authorization via asymmetric cryptography. Two keys are generate a public and a secret one.
+The public key is, as the name suggests, public and everyone could read it.
+The client encodes his messages with the private key; the receivers could validate the authenticity of those messages using the public key.
 
+This is one of the safest methods, but it's not viable as we need to distribute in some way the private key to
+trusted users.
+
+\subsubsection{OAuth2}
+Provide an access token at each client, which they could use to validate their identity at each API request.
+This token could be either valid, expired, revoked or invalid.
+\begin{alltt}
+    \$ curl -v --header 'Authorization: Bearer 1234' http://localhost:8080/api
+
+    > GET / HTTP/1.1
+    > Host: localhost:8080
+    > User-Agent: curl/7.72.0
+    > Accept: */*
+    > Authorization: Bearer 1234
+    ...
+\end{alltt}
+
+The OAuth2 protocol provides a secure and standardized way for creating and exchanging those token between client and server.
 
 \section{OAuth2 Protocol}
-\subsection{}
-
 \subsection{Obtain an access token}
+
 \begin{enumerate}
-    \item Redirect to an authorization provider.
+    \item
+        Redirect to the authorization provider.
         \begin{alltt}
     http://google.apis.com?response_type=code\&client_id...
         \end{alltt}
 
-    \item If the authorization is successful, the oauth server will redirect to \lstinline{redirect_uri} passing a \lstinline{code}
+    \item
+        If the authorization is successful, the oauth server will redirect to \lstinline{redirect_uri} passing a \lstinline{code}
         as GET parameter. Otherwise \lstinline{error} contains the reason why the authorization was not successful.
         \begin{alltt}
     POST /oauth/token HTTP/1.1
@@ -106,11 +133,14 @@ Different ways to achieve the goal, here are a few of them:
 
         \textit{If an authorization code is used more than once, the authorization server must deny the subsequent request.}
 
-    \item The client exchanges the \lstinline{code}, called also "grant token", with the server to obtain an
+    \item
+        The client exchanges the \lstinline{code}, called also "grant token", with the server to obtain an
         \\
         \lstinline{access\_token}.
-    \item The server returns the access token with additional informations, such as expire date and JWT.
-    \item The client uses the access token for APIs requests.
+    \item
+        The server returns the access token with additional informations, such as expire date and JWT.
+    \item
+        The client uses the access token for APIs requests.
 \end{enumerate}
 
 \begin{figure}[h]

@@ -147,3 +147,7 @@
 \let\latexl@subsection\l@subsection
 \def\l@subsection#1#2{\begingroup\let\numberline\@gobble\latexl@subsection{#1}{#2}\endgroup}
 \makeatother
+
+% Paragraph styling
+\setlength\parindent{0em}
+\setlength\parskip{1em}
