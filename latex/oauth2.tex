@@ -1,4 +1,5 @@
 %!TEX program = xelatex
+% vim: tw=80: colorcolumn=80: spell
 \documentclass{style}
 
 \usepackage{alltt}
@@ -21,14 +22,17 @@
 
 % Document sections
 %[nextsection]
+
+%==============================================================================
 \section{Introduction}
 \subsection{The problem}
-Let's imagine that we have a server that manages a vast list of products.
-Those products could be searched, filtered and sorted by different fields, like the name, color, insertion date and so on.
-The search query is submitted, the server returns a web page with the products, represented in a tabular fashion.
+Let's imagine that we have a server that manages a vast list of products. Those
+products could be searched, filtered and sorted by different fields, like the
+name, color, insertion date and so on.  The search query is submitted, the
+server returns a web page with the products, represented in a tabular fashion.
 
-The server becomes popular and is used by million of users, and you start to think that sharing those search results
-could be a cool feature.
+The server becomes popular and is used by million of users, and you start to
+think that sharing those search results could be a cool feature.
 
 We want to use third party API to integrate this feture.
 % Necessity of communication between client and server.
@@ -39,7 +43,8 @@ Directly send the user id to the server
 \begin{alltt}
     \$ curl -v -X POST http://localhost:8080/db_auth '\{"user-id": 1\}'
 \end{alltt}
-I do not want to sped too much time on this one. It is for sure one of the fastest
+I do not want to sped too much time on this one. It is for sure one of the
+fastest
 and less secure way to communicate the user identity.
 
 Even someone with some basic knowledge of programming could recognize that by changing the
@@ -61,6 +66,12 @@ Http Basic Auth: each API request is signed with a username and a passwrod, enco
 Since the credentials are neither hashed nor encrypted, your username and password are always visible by
 someone who could read the headers.
 Therefore this protocol requires an https channel in order to be somewhat secure.
+
+\subsubsection{API Key}
+\begin{alltt}
+    \$ curl --header Authorization: Apikey 1234567890abcdef
+\end{alltt}
+API keys make sense when the users of an API are only developers.
 
 \subsubsection{Public/Private Key}
 \begin{alltt}
@@ -92,8 +103,10 @@ This is one of the safest methods, but it's not viable as we need to distribute 
 trusted users.
 
 \subsubsection{OAuth2}
-Provide an access token at each client, which they could use to validate their identity at each API request.
-This token could be either valid, expired, revoked or invalid.
+Provide an access token at each client, which they could use to validate their
+identity at each API request.  This token could be either valid, expired,
+revoked or invalid.
+
 \begin{alltt}
     \$ curl -v --header 'Authorization: Bearer 1234' http://localhost:8080/api
 
@@ -107,6 +120,8 @@ This token could be either valid, expired, revoked or invalid.
 
 The OAuth2 protocol provides a secure and standardized way for creating and exchanging those token between client and server.
 
+
+%==============================================================================
 \section{OAuth2 Protocol}
 \subsection{Obtain an access token}
 
@@ -137,8 +152,8 @@ The OAuth2 protocol provides a secure and standardized way for creating and exch
         The client exchanges the \lstinline{code}, called also "grant token", with the server to obtain an
         \\
         \lstinline{access\_token}.
-    \item
-        The server returns the access token with additional informations, such as expire date and JWT.
+    \item The server returns the access token with additional informations, such
+        as expire date and JWT.
     \item
         The client uses the access token for APIs requests.
 \end{enumerate}
@@ -150,13 +165,59 @@ The OAuth2 protocol provides a secure and standardized way for creating and exch
 \subsection{Revoke an access token}
 Something something
 
+%==============================================================================
+\section{SAML: Security Assertion Markup Language}
+% Confronto con oauth2
+Unlike OAuth, this protocol deals with both authentication and
+authorization.
+
+\subsection{Overview}
+Uses already existing technologies:
+\begin{itemize}
+    \item SOAP
+    \item XML Schema
+    \item HTTP
+    \item XML Signature, for encryption and message validation
+\end{itemize}
+
+\subsection{Protocol}
+SAML protocol describes how SAML elements are packaged with SAML requests
+and responses elements.
+
+The most important saml protocol is called "\textit{query}", a service provider
+makes a query directly
+\subsubsection{SOAP}
+The SOAP specification defines the messaging framework, which consists of:
+% https://en.wikipedia.org/wiki/SOAP#Specification
+\begin{itemize}
+    \item SOAP processing model,
+    \item SOAP extensibility model
+    \item SOAP underlying protocol binding framework
+    \item SOAP message construct
+\end{itemize}
+
+\subsection{Security}
+The standard requires TML v1.0+ for transport layer security, XML signature
+and encryption for message-level security.
+
+
+%==============================================================================
+\section{Comparing SAML and OAuth2}
+
+
+
+
+%==============================================================================
 \section{SSO with OpenID}
 \subsection{Second problem}
-We want to delegate the process of authentication of username and password to an external service, then if the user
-is registered in our platform we allow him in.
+We want to delegate the process of authentication of username and password
+to an external service, then if the user is registered in our platform we
+allow him in.
 
 \subsection{JWT}
-Shorthand JSON Web Token, encoded token that contains the necessary informations to identify the user.
+Shorthand JSON Web Token, encoded token that contains the necessary
+informations to identify the user.
+
 \subsection{JWS e JWE}
 Token could be signed, encrypted or both.
 
@@ -167,7 +228,12 @@ Verify the SHA256 signature
     \bibitem{google api dev}
     Using OAuth 2.0 to Access Gooogle APIs
     \\\texttt{https://developers.google.com/identity/protocols/oauth2}
+
+    \bibitem{Api Keys vs Oauth}
+    API Keys vs OAuth Tokens vs JSON Web Tokens
+    \\\texttt{https://zapier.com/engineering/apikey-oauth-jwt/}
 \end{thebibliography}
 
 \newpage
 \end{document}
+
