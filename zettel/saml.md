@@ -82,6 +82,22 @@ SAML specifications recommends:
 ![SAML uml action diagram](https://upload.wikimedia.org/wikipedia/en/thumb/0/04/Saml2-browser-sso-redirect-post.png/600px-Saml2-browser-sso-redirect-post.png)
 
 
+#### Definizione: Sistaema di base di dati federato.
+
+> tipo di sistema di gestione di met-database, che mappa trasparentemente
+> sistemi di basi di dati autonomi, in una singola base di dati federata.
+> Le basi di dati di cui è costituito sono interconnesse. Finchè il sistema di
+> base di dati rimane autonomo, un sistema di basi di dati federato è
+> un'alternativa all'obbiettivo di fondere diverse basi di dati.
+> Una base di dati federata o virtuale è composta da tutte le basi di dati da
+> cui è composto un sistema di basi di dati federato. Non c'è integrazione di
+> dati effettiva nelle varie basi di dati come risultato della federazione di
+> dati.
+Da Wikipedia
+
+
+[File che spiega federazione]: https://www.iit.cnr.it/sites/default/files/identit%C3%A0%20federata_final.pdf
+
 
 ### Links:
 [Wikipedia]: https://en.wikipedia.org/wiki/Security_Assertion_Markup_Language#Overview
