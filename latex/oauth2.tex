@@ -12,6 +12,7 @@
 
 \author{Corradi Alessandro}
 
+\graphicspath{{./res/}}
 
 \begin{document}
 \maketitle{}
@@ -26,6 +27,22 @@
 %==============================================================================
 \section{Introduction}
 \subsection{The problem}
+Leave this after rather than before, (include an hook at the beginning of the
+introduction)
+
+Just imagine a website that it's main functionality is manage the warehouse of a
+large number of products.
+The functionalities available could be numerous, here are a few:
+
+\begin{itemize}
+    \item retrieve the list of products in the warehouse
+    \item Add or remove a product
+    \item Register a shipment
+    \item Create the list of barcode for a shipment
+\end{itemize}
+
+
+
 Let's imagine that we have a server that manages a vast list of products. Those
 products could be searched, filtered and sorted by different fields, like the
 name, color, insertion date and so on.  The search query is submitted, the
@@ -123,6 +140,10 @@ The OAuth2 protocol provides a secure and standardized way for creating and exch
 
 %==============================================================================
 \section{OAuth2 Protocol}
+\subsection{What is OAuth2?}
+Oauth 2.0 is an authorization framework that enables a third-party application
+to obtain limited access to an HTTP service either on behalf of a resource
+owner.
 \subsection{Obtain an access token}
 
 \begin{enumerate}
@@ -160,7 +181,7 @@ The OAuth2 protocol provides a secure and standardized way for creating and exch
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=.5\textwidth]{img/authorization-code.png}
+    \includegraphics[width=.5\textwidth]{authorization-code.png}
 \end{figure}
 \subsection{Revoke an access token}
 Something something
@@ -203,6 +224,12 @@ and encryption for message-level security.
 
 %==============================================================================
 \section{Comparing SAML and OAuth2}
+SAML protocol provides authorization and authentication, on the other hand,
+OAuth2 is an authorization protocol, therefore is usually associated with OpenID
+to provide authenticaiton too.
+
+SAML uses an XML based protocol to call functions after authentications, Oauth2
+uses http redirects.
 
 
 
@@ -227,11 +254,13 @@ Verify the SHA256 signature
 \begin{thebibliography}{9}
     \bibitem{google api dev}
     Using OAuth 2.0 to Access Gooogle APIs
-    \\\texttt{https://developers.google.com/identity/protocols/oauth2}
+    \\
+    \texttt{https://developers.google.com/identity/protocols/oauth2}
 
     \bibitem{Api Keys vs Oauth}
     API Keys vs OAuth Tokens vs JSON Web Tokens
-    \\\texttt{https://zapier.com/engineering/apikey-oauth-jwt/}
+    \\
+    \texttt{https://zapier.com/engineering/apikey-oauth-jwt/}
 \end{thebibliography}
 
 \newpage
