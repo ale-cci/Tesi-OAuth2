@@ -4,6 +4,7 @@ services:
   notebook:
     build: ./notebook
     ports:
+      - 8000:8000
       - 3333:3333
     env_file:
       - .env
