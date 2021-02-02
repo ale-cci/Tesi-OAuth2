@@ -5,6 +5,8 @@ services:
     build: ./notebook
     ports:
       - 3333:3333
+    env_file:
+      - .env
 
     volumes:
       - ./notebook/OAuth2-presentation.ipynb:/notebook/OAuth2-presentation.ipynb
