@@ -25,7 +25,13 @@
 %[nextsection]
 
 %==============================================================================
+\section{Prelude}
+\subsection{What is this report?}
+\subsection{Who wrote this report?}
+\subsection{What are the goals of this document?}
+
 \section{Introduction}
+
 \subsection{The problem}
 Leave this after rather than before, (include an hook at the beginning of the
 introduction)
@@ -242,8 +248,84 @@ to an external service, then if the user is registered in our platform we
 allow him in.
 
 \subsection{JWT}
-Shorthand JSON Web Token, encoded token that contains the necessary
-informations to identify the user.
+JWT is an internet standard for creating JSON based access tokens,
+that assert some number of claims in the token itself, so that it is
+completely stateless. (system?)
+
+If i give a jwt to a completely different service that has no access to the
+database, it will be able to authenticate that guy.
+We can do that with encryption: JWT is composed by 3 parts: header, data and a
+signature.
+
+The data can not be deliberately modified, with the checksum, only the server
+could verify if the token is correct or it has been altered.
+
+With symmetric encryption the server can lock and unlock the token.
+Asymmetric private key, can encrypt with a key and validate with another key.
+
+The validation is public, but the generation is private.
+
+% Session based AUTH
+% using session id, comports an extra database hit at each request.
+
+% Comparison with session based authrentication
+% JWT was invented to solve certain problems
+% JWT has it's own problems
+the key to check the token should be shared between all the servers.
+But once it's stolen we can't do anything about it.
+
+If one stole the token it can authenticate to every service and you can not
+retrieve it, because it has no database behind it.
+
+One solution is to make short lived the token, it's not easy to steal them
+because it's ssl, and xss has to be well crafted.
+
+Sessions could be made short lived, and force the user to logout every X
+minutes, (sometimes it's a bad user experience).
+
+Refresh tokens are exactly like session.
+RT are JWT stored in the database. Usually refresh token don't have expiery
+date, use access token to make every request and use refresh token in case the
+former is expired.
+RefreshToken should be stored securely to prevent XSS and CSRF.
+
+With refreshtoken we should hit the database because it's required to verify
+that it should't be revoked, expired, blacklisted or something else.
+
+With this improvement we hit the db only once in 15 mins.
+
+In a 0 thrust architecture, it's really rare that symmetric encryption is used
+to crete JWTs, because if just one server is hacked, then all the encryption
+mechanism is corrupted.
+
+By only deleting the refresh token from the database, you are not able to
+logout immediately.
+
+% refresh-token
+% asymmetric JWT
+JWT are transmitted encoded, as a list of base64 strings, catenated with a dot.
+JWT itself is not encrypted, it's signed.
+
+% pros and cons of JWT
+Pros:
+- stateless
+- great for api
+- secure: everything encrypted in the token, very hard to break unless it's
+used a very weak private key.
+- carry useful and trusted information
+- rendering pages in frontend without relying on the server.
+- can store info that drive UX
+- no need for a centralized database.
+
+Cons:
+- Sharing secrets in a microservice architecture.
+- key management, where to put public key, how to know if it's valid. Deprecate key.
+- very tricky to consume correctly.
+- storage of refresh tokens.
+- token revocation and control. you cannot revoke a jwt, it's staeless.
+- insecure implementation of library (e.g. no algorithm), without any algorithm
+anyone can create tokens.
+
 
 \subsection{JWS e JWE}
 Token could be signed, encrypted or both.
@@ -261,6 +343,7 @@ Verify the SHA256 signature
     API Keys vs OAuth Tokens vs JSON Web Tokens
     \\
     \texttt{https://zapier.com/engineering/apikey-oauth-jwt/}
+
 \end{thebibliography}
 
 \newpage
