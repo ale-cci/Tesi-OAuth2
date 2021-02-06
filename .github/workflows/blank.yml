@@ -16,10 +16,6 @@ jobs:
     steps:
     - name: Make envfile
       uses: SpicyPizza/create-envfile@v1
-      with:
-        USED: false
-        directory: .
-        file_name: .env
       
   build:
     # The type of runner that the job will run on
