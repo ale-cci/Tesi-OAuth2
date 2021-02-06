@@ -4,6 +4,7 @@ FROM debian:buster
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get --no-install-recommends install -y \
         fonts-roboto \
+        rubber\
         texlive-xetex \
         texlive-latex-recommended \
         texlive-latex-extra \
@@ -12,13 +13,5 @@ RUN apt-get update && apt-get --no-install-recommends install -y \
         apt-get clean && \
         rm -rf /var/lib/apt/lists/*
 
-
-
 WORKDIR /data
-RUN mkdir -p /build
-VOLUME /build
-
-CMD ls /data && \
-    xelatex -output-directory=/build ./oauth2.tex \
-    xelatex -output-directory=/build ./oauth2.tex \
-    && cp /build/oauth2.pdf /data/oauth2.pdf
+CMD rubber --pdf oauth2 && rubber --clean oauth2
