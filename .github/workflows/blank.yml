@@ -23,7 +23,7 @@ jobs:
         uses: SpicyPizza/create-envfile@v1
 
       - name: Build PDF
-        run: docker run -v $PWD/latex:/data alecci/xelatex:
+        run: docker run -v $PWD/latex:/data alecci/xelatex:latest
 
       - name: Create Release
         id: create_release
