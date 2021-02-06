@@ -2,7 +2,7 @@
 
 name: CI
 
-# Controls when the action will run. 
+# Controls when the action will run.
 on:
   push:
     branches: [master]
@@ -10,7 +10,7 @@ on:
 
 
 jobs:
-      
+
   build:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
@@ -18,12 +18,12 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       - uses: actions/checkout@v2
-        
+
       - name: Make envfile
         uses: SpicyPizza/create-envfile@v1
       - name: Build PDF
-        run: docker-compose up xelatex
-        
+        run: docker-compose pull xelatex && docker-compose up xelatex
+
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
@@ -36,12 +36,12 @@ jobs:
           prerelease: false
 
       - name: Upload Release Asset
-        id: upload-release-asset 
+        id: upload-release-asset
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
           asset_path: ./latex/oauth2.pdf
           asset_name: tesi_oauth2.pdf
           asset_content_type: application/pdf
