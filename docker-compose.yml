@@ -15,5 +15,6 @@ services:
   xelatex:
     build: ./latex
     volumes:
-      - ./res/:/res
-      - ./latex/oauth2.tex/:/latex/oauth2.tex
+      - ./latex:/data
+      - ./latex/res/:/data/res
+
