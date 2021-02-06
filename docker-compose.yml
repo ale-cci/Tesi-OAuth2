@@ -14,7 +14,7 @@ services:
 
   xelatex:
     image: alecci/xelatex:latest
-    #build: ./latex
+    build: ./latex
     volumes:
       - ./latex:/data
       - ./latex/res/:/data/res

@@ -21,9 +21,9 @@ jobs:
 
       - name: Make envfile
         uses: SpicyPizza/create-envfile@v1
-      - name: Build PDF
-        run: docker-compose pull xelatex && docker-compose up xelatex
 
+      - name: Build PDF
+        run: docker run -v $PWD/latex:/data alecci/xelatex:
 
       - name: Create Release
         id: create_release
