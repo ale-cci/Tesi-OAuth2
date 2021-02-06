@@ -12,13 +12,6 @@ services:
     volumes:
       - ./notebook/OAuth2-presentation.ipynb:/notebook/OAuth2-presentation.ipynb
 
-  server:
-    build: ./server
-    ports:
-      - 8080:8080
-    environment:
-      PORT: 8080
-
   xelatex:
     build: ./latex
     volumes:
