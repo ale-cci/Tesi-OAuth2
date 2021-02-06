@@ -1,4 +1,5 @@
 %!TEX program = xelatex
+% rubber: set program xelatex
 % vim: tw=80: colorcolumn=80: spell
 \documentclass{style}
 
@@ -248,20 +249,20 @@ to an external service, then if the user is registered in our platform we
 allow him in.
 
 \subsection{JWT}
-JWT is an internet standard for creating JSON based access tokens,
-that assert some number of claims in the token itself, so that it is
-completely stateless. (system?)
+JWT is an internet standard for creating JSON based access tokens.
+JWT is an internet standard for creating JSON based access tokens, that assert
+some number of claims in the token itself, so that it is completely stateless.
+(system?)
 
 If i give a jwt to a completely different service that has no access to the
-database, it will be able to authenticate that guy.
-We can do that with encryption: JWT is composed by 3 parts: header, data and a
-signature.
+database, it will be able to authenticate that guy.  We can do that with
+encryption: JWT is composed by 3 parts: header, data and a signature.
 
 The data can not be deliberately modified, with the checksum, only the server
 could verify if the token is correct or it has been altered.
 
-With symmetric encryption the server can lock and unlock the token.
-Asymmetric private key, can encrypt with a key and validate with another key.
+With symmetric encryption the server can lock and unlock the token.  Asymmetric
+private key, can encrypt with a key and validate with another key.
 
 The validation is public, but the generation is private.
 
