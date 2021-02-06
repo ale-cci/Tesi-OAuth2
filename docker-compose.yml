@@ -13,7 +13,7 @@ services:
       - ./notebook/OAuth2-presentation.ipynb:/notebook/OAuth2-presentation.ipynb
 
   xelatex:
-    image: alecci/xelatex:1.0
+    image: alecci/xelatex:latest
     #build: ./latex
     volumes:
       - ./latex:/data
