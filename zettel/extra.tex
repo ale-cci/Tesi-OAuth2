@@ -1,0 +1,43 @@
+\section{SAML: Security Assertion Markup Language}
+% Confronto con oauth2
+Unlike OAuth, this protocol deals with both authentication and
+authorization.
+
+\subsection{Overview}
+Uses already existing technologies:
+\begin{itemize}
+    \item SOAP
+    \item XML Schema
+    \item HTTP
+    \item XML Signature, for encryption and message validation
+\end{itemize}
+
+\subsection{Protocol}
+SAML protocol describes how SAML elements are packaged with SAML requests
+and responses elements.
+
+The most important saml protocol is called "\textit{query}", a service provider
+makes a query directly
+\subsubsection{SOAP}
+The SOAP specification defines the messaging framework, which consists of:
+% https://en.wikipedia.org/wiki/SOAP#Specification
+\begin{itemize}
+    \item SOAP processing model,
+    \item SOAP extensibility model
+    \item SOAP underlying protocol binding framework
+    \item SOAP message construct
+\end{itemize}
+
+\subsection{Security}
+The standard requires TML v1.0+ for transport layer security, XML signature
+and encryption for message-level security.
+
+
+%==============================================================================
+\section{Comparing SAML and OAuth2}
+SAML protocol provides authorization and authentication, on the other hand,
+OAuth2 is an authorization protocol, therefore is usually associated with OpenID
+to provide authenticaiton too.
+
+SAML uses an XML based protocol to call functions after authentications, Oauth2
+uses http redirects.
