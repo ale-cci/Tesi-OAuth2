@@ -193,60 +193,152 @@ owner.
 \subsection{Revoke an access token}
 Something something
 
-%==============================================================================
-\section{SAML: Security Assertion Markup Language}
-% Confronto con oauth2
-Unlike OAuth, this protocol deals with both authentication and
-authorization.
-
-\subsection{Overview}
-Uses already existing technologies:
-\begin{itemize}
-    \item SOAP
-    \item XML Schema
-    \item HTTP
-    \item XML Signature, for encryption and message validation
-\end{itemize}
-
-\subsection{Protocol}
-SAML protocol describes how SAML elements are packaged with SAML requests
-and responses elements.
-
-The most important saml protocol is called "\textit{query}", a service provider
-makes a query directly
-\subsubsection{SOAP}
-The SOAP specification defines the messaging framework, which consists of:
-% https://en.wikipedia.org/wiki/SOAP#Specification
-\begin{itemize}
-    \item SOAP processing model,
-    \item SOAP extensibility model
-    \item SOAP underlying protocol binding framework
-    \item SOAP message construct
-\end{itemize}
-
-\subsection{Security}
-The standard requires TML v1.0+ for transport layer security, XML signature
-and encryption for message-level security.
 
 
 %==============================================================================
-\section{Comparing SAML and OAuth2}
-SAML protocol provides authorization and authentication, on the other hand,
-OAuth2 is an authorization protocol, therefore is usually associated with OpenID
-to provide authenticaiton too.
+\section{More Oauth}
+%================================================================================
+OAuth2 is often confused with API keys, but there is a small distinction. The
+reason of the confusion is that they are almost used for the same way, but with
+one small distinction.
 
-SAML uses an XML based protocol to call functions after authentications, Oauth2
-uses http redirects.
+If you are already a user of website A and you want to access your data
+programmatically then you can use an api key, but if a service wants to access
+your information then server would use Oauth2.
 
+In the login prompt, users sees the assertion that will be inserted in the
+oauth2 jwt.
 
+OAuth2 flow is always between website A and B, the user has only to consent the
+oauth2 request.
 
+It all starts with a specially crafted url, besides the host, it includes extra
+information that says what the host should do, they include the registered
+application, the redirect uri (once discord is done the authorization the host
+will send you there). Response type is for saying that you want a code back, and
+scope is the actual data that you want to access.
 
 %==============================================================================
-\section{SSO with OpenID}
-\subsection{Second problem}
-We want to delegate the process of authentication of username and password
-to an external service, then if the user is registered in our platform we
-allow him in.
+In the early days, all was easy, you simply gave your username and password to
+one service, so it can log in to your account, and grab whatever information
+they wanted.
+
+There is no guarantee that an organization will keep your credentials safe, or
+it won't use your credentials to access more sensitive information than
+necessary.
+
+Today we have agreed to standards, to allow one service to securely allow access
+to another.
+The first one is oauth (2.0), a security standard where you give an application
+permissions to access your data in another application, instead of giving them
+username and password, it gives them a key that allows it to access data or do
+things on your behalf, on another application.
+
+The steps to grant permissions, or consents are often referred as authorizations
+or delegated authorizations.
+
+Once more, you can take back that key whenever you wish.
+
+You have discover an awesome website that tells you a terrible pun every day,
+and you want to share it between all your contacts on your mailing list (why
+not).
+But writing an email to every person in your contact list every day sounds like
+a lot of work.
+
+Good thing terrible pun of the day has a feature to email all your friends.
+1st you go to your email provider, then you are redirect to your email service.
+Firstly it checks if you are logged in, if you are not, it asks you to
+authenticate and then it opens a session where it presents the question: "do you
+want to give the website access to your contacts?"
+
+Assuming you have not changed your mind you click allow, now you are redirected
+to the website and the application can now access your contacts.
+
+Visible and invisible steps to grant consent.
+Before going in the depths of oauth2 let's map some terminology
+- resource owner (you)
+- the client (the application that want to access your data)
+- authorization server (application that knows the resource owner, where the
+resource owner already has an account)
+- resource server (server that contains the data that the client wants to use on
+behalf of the resource owner, sometimes it is the same as the authorization
+server)
+
+authorization and resource servers could be a third party service trusted by the
+resource server.
+
+- redirect uri, where the client will be redirect after authorization.
+- response type: type of the information the client expects to receive (most
+common code, (authorization code))
+- scope: permission that the client wants
+- consent: authorization server takes the scopes and verifies wether or not it
+want to give client permissions
+- client\_id: used to identify the client with the authorization server
+- client\_secret: secret password that only client and auth server knows
+- auth\_code: short lived code that server sends to the client
+- access\_token: key the client will use to communicate with the resource server.
+
+(oauth2 protocol explained)
+
+client doen't use the access token, it's jibbrish.
+
+%==============================================================================
+\section{PKCE}
+PKCE (proof key for code exchange), superset feature on top of oauth2
+
+
+Why should you care:
+security is important, only fully server side hosted application can securely
+store secrets. Desktop and mobile applications are public, and it's keys cannot
+be protected.
+
+Public applications can be exploited via authorization code interception,
+whereby a malicious application running alongside your application can intercept
+the authorization code and obtain authorization token.
+Oauth2.1 specification will mandate that all implementation of the authorization
+grant type use PKCE.
+
+%==============================================================================
+\section{OpenID connect}
+
+oauth2.0 is designed only for authorization and granting access to data and
+feature from one application to another.
+OAuth is like giving an application a key, that doesn't tell anything about who
+you are.
+OIDC is a thin layer that sits on top of Oauth2.0 that add functionality around
+login and profile information about the person who is logged in.
+Instead of a key, openid is like giving a person a badge. A badge not only gives
+permission but also some basic information of who your are.
+
+OIDC enstablish a client to perform a login session.
+When an authorization server supports oidc it referred as an identity provider,
+since it provides information about the resource owner back to the client.
+
+OpenID connect, enables scenarios where one login can be shared among multiple
+applications. It is also known as single sign on.
+For example an application can support SSO with social networking services (i.e.
+facebook or twitter) so that a user can use a login that he already has and it's
+comfortable using it.
+
+Example with ATM. atm is the client and it communicates with the bank. The bank
+card is the token issued by the bank. Not only gives access to the atm to your
+bank account, but holds some basic information about you, when the card expires
+and why you are.
+ATM cannot work without the infrastructure of the bank.
+
+On top of oauth, a specific scope of openid is used. The authorization server
+goes to all the steps listed before and issues the client an authorization code
+via the client's browser.
+The key difference is that the client receives both an access token and an id
+token.
+
+ID token is a specifically formatted token (JWT). Client can extract your user
+id, your email, when you logged in, when it expires, and it can tell if anyone
+has tried to tamper with the jwt.
+
+Fields contained in the jwt are called claims.
+There is also a standard way that a client can ask additional information from the
+authorization server, such as the email address.
 
 %==============================================================================
 \section{JWT}
