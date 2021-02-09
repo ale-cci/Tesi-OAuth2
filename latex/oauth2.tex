@@ -1,7 +1,7 @@
 %!TEX program = xelatex
 % rubber: set program xelatex
 % vim: tw=80: colorcolumn=80: spell
-\documentclass{style}
+\documentclass[20pt]{style}
 
 \usepackage{alltt}
 
@@ -27,13 +27,43 @@
 
 %==============================================================================
 \section{Prelude}
-\subsection{What is this report?}
-\subsection{Who wrote this report?}
-\subsection{What are the goals of this document?}
+\subsection{What you will find in this paper}
+The goal of this document is to explain how does the OAuth2 protocol work and
+how it can be implemented and used within a webserver.
+
+Further down we will see the strength and weaknesses of this protocol and when
+it's best adopt this industry standard, where it's adopted and what are it's use
+cases.
+
+We will see what OpenID connect and the meaning of Identity Provider, Single SignOn
+and JWT.
+\subsection{Reading target}
+This paper is suited for people who are new to authentication protocols, want to
+integrate Oauth2 with their webserver, or want to know in depth how JWT and
+OpenID works.
 
 \section{Introduction}
+The OAuth2 protocol is often confused with API keys for their similar use cases,
+but there is a small distinction that makes the former hugely more flexible.
 
-\subsection{The problem}
+If you are already a user of website A and you want to access your data
+programmatically then you can use an api key, but if a service wants to access
+your information then server would use Oauth2.
+
+In the login prompt, users sees the assertion that will be inserted in the
+oauth2 jwt.
+
+OAuth2 flow is always between website A and B, the user has only to consent the
+oauth2 request.
+
+It all starts with a specially crafted url, besides the host, it includes extra
+information that says what the host should do, they include the registered
+application, the redirect uri (once discord is done the authorization the host
+will send you there). Response type is for saying that you want a code back, and
+scope is the actual data that you want to access.
+
+
+\subsection{Entities that take part in authorization protocols}
 Leave this after rather than before, (include an hook at the beginning of the
 introduction)
 
@@ -48,8 +78,6 @@ The functionalities available could be numerous, here are a few:
     \item Create the list of barcode for a shipment
 \end{itemize}
 
-
-
 Let's imagine that we have a server that manages a vast list of products. Those
 products could be searched, filtered and sorted by different fields, like the
 name, color, insertion date and so on.  The search query is submitted, the
@@ -58,7 +86,7 @@ server returns a web page with the products, represented in a tabular fashion.
 The server becomes popular and is used by million of users, and you start to
 think that sharing those search results could be a cool feature.
 
-We want to use third party API to integrate this feture.
+We want to use third party API to integrate this feature.
 % Necessity of communication between client and server.
 
 Different ways to achieve the goal, here are a few of them:
@@ -198,25 +226,6 @@ Something something
 %==============================================================================
 \section{More Oauth}
 %================================================================================
-OAuth2 is often confused with API keys, but there is a small distinction. The
-reason of the confusion is that they are almost used for the same way, but with
-one small distinction.
-
-If you are already a user of website A and you want to access your data
-programmatically then you can use an api key, but if a service wants to access
-your information then server would use Oauth2.
-
-In the login prompt, users sees the assertion that will be inserted in the
-oauth2 jwt.
-
-OAuth2 flow is always between website A and B, the user has only to consent the
-oauth2 request.
-
-It all starts with a specially crafted url, besides the host, it includes extra
-information that says what the host should do, they include the registered
-application, the redirect uri (once discord is done the authorization the host
-will send you there). Response type is for saying that you want a code back, and
-scope is the actual data that you want to access.
 
 %==============================================================================
 In the early days, all was easy, you simply gave your username and password to
