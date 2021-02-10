@@ -44,11 +44,33 @@ OpenID works.
 
 \section{Introduction}
 The OAuth2 protocol is often confused with API keys for their similar use cases,
-but there is a small distinction that makes the former hugely more flexible.
+but there is a small distinction that makes the former highly more flexible.
 
-If you are already a user of website A and you want to access your data
-programmatically then you can use an api key, but if a service wants to access
-your information then server would use Oauth2.
+If you are already a user of a service and you want to access your data
+programmatically, then sure, you can use API keys, but if a third party
+application wants to access your data it will not ask for your username and
+password, but it will use OAuth2 for access you private reources.
+
+\subsection{Authentication and Authorization}
+Authorization and authentication my sound similar to one another, but they are
+two distinct concepts, used in identity and access management:
+authentication says who you are, authorization says what actions you can
+perform.
+
+OAuth2 is an authorization protocol, which means that it's only use is for
+granting access to protected resources to a client.
+
+\subsection{Terminology}
+
+\subsection{The protocol}
+It all starts with a specifically crafted url:
+\begin{lstlisting}
+https://www.googleapis.com
+    ?redirect_uri=http://localhost:3030
+    &client_id=
+    &scope=email read-contacts
+    &grant=code
+\end{lstlisting}
 
 In the login prompt, users sees the assertion that will be inserted in the
 oauth2 jwt.
@@ -63,7 +85,7 @@ will send you there). Response type is for saying that you want a code back, and
 scope is the actual data that you want to access.
 
 
-\subsection{Entities that take part in authorization protocols}
+\subsection{Main entities in authorization protocols}
 Leave this after rather than before, (include an hook at the beginning of the
 introduction)
 
