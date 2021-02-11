@@ -100,17 +100,71 @@ The functionalities available could be numerous, here are a few:
     \item Create the list of barcode for a shipment
 \end{itemize}
 
-Let's imagine that we have a server that manages a vast list of products. Those
-products could be searched, filtered and sorted by different fields, like the
-name, color, insertion date and so on.  The search query is submitted, the
-server returns a web page with the products, represented in a tabular fashion.
+In the early days all was easy, you simply gave you username and password to a
+service you want to access and presto, the service is immediately able to
+authenticate and access the data it wants on your account.
 
-The server becomes popular and is used by million of users, and you start to
-think that sharing those search results could be a cool feature.
+There is no guarantee that an organization will keep your credentials safe, or
+it won't use your credentials to access more sensitive information than
+necessary.
 
-We want to use third party API to integrate this feature.
-% Necessity of communication between client and server.
+Today we have agreed to standards, to allow one service to securely allow access
+to another.
+The first one is oauth (2.0), a security standard where you give an application
+permissions to access your data in another application, instead of giving them
+username and password, it gives them a key that allows it to access data or do
+things on your behalf, on another application.
 
+The steps to grant permissions, or consents are often referred as authorizations
+or delegated authorizations.
+
+Once more, you can take back that key whenever you wish.
+
+You have discover an awesome website that tells you a terrible pun every day,
+and you want to share it between all your contacts on your mailing list (why
+not).
+But writing an email to every person in your contact list every day sounds like
+a lot of work.
+
+Good thing terrible pun of the day has a feature to email all your friends.
+1st you go to your email provider, then you are redirect to your email service.
+Firstly it checks if you are logged in, if you are not, it asks you to
+authenticate and then it opens a session where it presents the question: "do you
+want to give the website access to your contacts?"
+
+Assuming you have not changed your mind you click allow, now you are redirected
+to the website and the application can now access your contacts.
+
+Visible and invisible steps to grant consent.
+\subsection{Terminology}
+Before going in the depths of oauth2 let's map some terminology
+\begin{itemize}
+    \item \textbf{resource owner} (you)
+    \item the \textbf{client} (the application that want to access your data)
+    \item \textbf{authorization server} (application that knows the resource owner, where
+        the resource owner already has an account)
+    \item \textbf{resource server} (server that contains the data that the client wants
+        to use on behalf of the resource owner, sometimes it is the same as the
+        authorization server)
+\end{itemize}
+
+authorization and resource servers could be a third party service trusted by the
+resource server.
+
+- redirect uri, where the client will be redirect after authorization.
+- response type: type of the information the client expects to receive (most
+common code, (authorization code))
+- scope: permission that the client wants
+- consent: authorization server takes the scopes and verifies wether or not it
+want to give client permissions
+- client\_id: used to identify the client with the authorization server
+- client\_secret: secret password that only client and auth server knows
+- auth\_code: short lived code that server sends to the client
+- access\_token: key the client will use to communicate with the resource server.
+
+(oauth2 protocol explained)
+
+client doen't use the access token, it's jibbrish.
 Different ways to achieve the goal, here are a few of them:
 \subsubsection{Direct transmission of the user identifier}
 Directly send the user id to the server
@@ -250,68 +304,6 @@ Something something
 %================================================================================
 
 %==============================================================================
-In the early days, all was easy, you simply gave your username and password to
-one service, so it can log in to your account, and grab whatever information
-they wanted.
-
-There is no guarantee that an organization will keep your credentials safe, or
-it won't use your credentials to access more sensitive information than
-necessary.
-
-Today we have agreed to standards, to allow one service to securely allow access
-to another.
-The first one is oauth (2.0), a security standard where you give an application
-permissions to access your data in another application, instead of giving them
-username and password, it gives them a key that allows it to access data or do
-things on your behalf, on another application.
-
-The steps to grant permissions, or consents are often referred as authorizations
-or delegated authorizations.
-
-Once more, you can take back that key whenever you wish.
-
-You have discover an awesome website that tells you a terrible pun every day,
-and you want to share it between all your contacts on your mailing list (why
-not).
-But writing an email to every person in your contact list every day sounds like
-a lot of work.
-
-Good thing terrible pun of the day has a feature to email all your friends.
-1st you go to your email provider, then you are redirect to your email service.
-Firstly it checks if you are logged in, if you are not, it asks you to
-authenticate and then it opens a session where it presents the question: "do you
-want to give the website access to your contacts?"
-
-Assuming you have not changed your mind you click allow, now you are redirected
-to the website and the application can now access your contacts.
-
-Visible and invisible steps to grant consent.
-Before going in the depths of oauth2 let's map some terminology
-- resource owner (you)
-- the client (the application that want to access your data)
-- authorization server (application that knows the resource owner, where the
-resource owner already has an account)
-- resource server (server that contains the data that the client wants to use on
-behalf of the resource owner, sometimes it is the same as the authorization
-server)
-
-authorization and resource servers could be a third party service trusted by the
-resource server.
-
-- redirect uri, where the client will be redirect after authorization.
-- response type: type of the information the client expects to receive (most
-common code, (authorization code))
-- scope: permission that the client wants
-- consent: authorization server takes the scopes and verifies wether or not it
-want to give client permissions
-- client\_id: used to identify the client with the authorization server
-- client\_secret: secret password that only client and auth server knows
-- auth\_code: short lived code that server sends to the client
-- access\_token: key the client will use to communicate with the resource server.
-
-(oauth2 protocol explained)
-
-client doen't use the access token, it's jibbrish.
 
 %==============================================================================
 \section{PKCE}
