@@ -43,13 +43,54 @@ integrate Oauth2 with their webserver, or want to know in depth how JWT and
 OpenID works.
 
 \section{Introduction}
-The OAuth2 protocol is often confused with API keys for their similar use cases,
-but there is a small distinction that makes the former highly more flexible.
+In the early days everything was easier, if you wanted to grant access to your
+private date to a third party application, you just have to give them your
+username and password to it, and presto! The application can freely access your
+account without any restrictions!
 
-If you are already a user of a service and you want to access your data
-programmatically, then sure, you can use API keys, but if a third party
-application wants to access your data it will not ask for your username and
-password, but it will use OAuth2 for access you private reources.
+But, as we all know, there is no guarantee that an application with keep your
+credentials all safe and securely stored, or even worse use it to access more
+sensitive information than necessary.
+
+Today we have agreed to a web standard, to allow one service to securely allow
+access to applications: OAuth2.
+
+Often confused with API keys for it's similar use, this protocol grant
+permissions to access the user data to applications, where instead of giving
+them username and password, it gives them a key (that could be temporary or
+permanent) to access user data.
+
+The key is commonly called \textbf{access token}.
+
+\subsection{The Terminology}
+Before deep diving into the protocol's specifications, here are some terms that
+i am going to use:
+
+\begin{itemize}
+    \item \textbf{resource owner} (you)
+    \item the \textbf{client} (the application that want to access your data)
+    \item \textbf{authorization server} (application that knows the resource owner, where
+        the resource owner already has an account)
+    \item \textbf{resource server} (server that contains the data that the client wants
+        to use on behalf of the resource owner, sometimes it is the same as the
+        authorization server)
+\end{itemize}
+
+authorization and resource servers could be a third party service trusted by the
+resource server.
+
+\begin{itemize}
+    \item  redirect uri, where the client will be redirect after authorization.
+    \item  response type: type of the information the client expects to receive
+        (most common code, (authorization code))
+    \item  scope: permission that the client wants
+    \item  consent: authorization server takes the scopes and verifies wether or not
+        it want to give client permissions
+    \item  client\_id: used to identify the client with the authorization server
+    \item  client\_secret: secret password that only client and auth server knows
+    \item  auth\_code: short lived code that server sends to the client
+    \item access\_token: key the client will use to communicate with the resource server.
+\end{itemize}
 
 \subsection{Authentication and Authorization}
 Authorization and authentication my sound similar to one another, but they are
@@ -60,8 +101,7 @@ perform.
 OAuth2 is an authorization protocol, which means that it's only use is for
 granting access to protected resources to a client.
 
-\subsection{Terminology}
-
+\section{OAuth2 Protocol}
 \subsection{The protocol}
 It all starts with a specifically crafted url:
 \begin{lstlisting}
@@ -86,27 +126,6 @@ scope is the actual data that you want to access.
 
 
 \subsection{Main entities in authorization protocols}
-Leave this after rather than before, (include an hook at the beginning of the
-introduction)
-
-Just imagine a website that it's main functionality is manage the warehouse of a
-large number of products.
-The functionalities available could be numerous, here are a few:
-
-\begin{itemize}
-    \item retrieve the list of products in the warehouse
-    \item Add or remove a product
-    \item Register a shipment
-    \item Create the list of barcode for a shipment
-\end{itemize}
-
-In the early days all was easy, you simply gave you username and password to a
-service you want to access and presto, the service is immediately able to
-authenticate and access the data it wants on your account.
-
-There is no guarantee that an organization will keep your credentials safe, or
-it won't use your credentials to access more sensitive information than
-necessary.
 
 Today we have agreed to standards, to allow one service to securely allow access
 to another.
@@ -138,30 +157,6 @@ to the website and the application can now access your contacts.
 Visible and invisible steps to grant consent.
 \subsection{Terminology}
 Before going in the depths of oauth2 let's map some terminology
-\begin{itemize}
-    \item \textbf{resource owner} (you)
-    \item the \textbf{client} (the application that want to access your data)
-    \item \textbf{authorization server} (application that knows the resource owner, where
-        the resource owner already has an account)
-    \item \textbf{resource server} (server that contains the data that the client wants
-        to use on behalf of the resource owner, sometimes it is the same as the
-        authorization server)
-\end{itemize}
-
-authorization and resource servers could be a third party service trusted by the
-resource server.
-
-- redirect uri, where the client will be redirect after authorization.
-- response type: type of the information the client expects to receive (most
-common code, (authorization code))
-- scope: permission that the client wants
-- consent: authorization server takes the scopes and verifies wether or not it
-want to give client permissions
-- client\_id: used to identify the client with the authorization server
-- client\_secret: secret password that only client and auth server knows
-- auth\_code: short lived code that server sends to the client
-- access\_token: key the client will use to communicate with the resource server.
-
 (oauth2 protocol explained)
 
 client doen't use the access token, it's jibbrish.
@@ -250,11 +245,7 @@ The OAuth2 protocol provides a secure and standardized way for creating and exch
 
 
 %==============================================================================
-\section{OAuth2 Protocol}
-\subsection{What is OAuth2?}
-Oauth 2.0 is an authorization framework that enables a third-party application
-to obtain limited access to an HTTP service either on behalf of a resource
-owner.
+\section{OAuth2 step by step}
 \subsection{Obtain an access token}
 
 \begin{enumerate}
@@ -294,31 +285,34 @@ owner.
     \centering
     \includegraphics[width=.5\textwidth]{authorization-code.png}
 \end{figure}
+
 \subsection{Revoke an access token}
+By requirements, an OAuth2 authentication server must expose an endpoint for
+revoking the validity of a particular token.
+
+In case the authentication is performed via JWT (see page \pageref{jwt})
 Something something
 
-
-
 %==============================================================================
-\section{More Oauth}
-%================================================================================
+\subsection{Protocol Vulnerabilities}
+\subsubsection{PKCE (Proof Key for Code Exchange)}
+Public applications, such as desktop and mobile apps, are unable to securely
+store credentials, in our case, the client secret.
 
-%==============================================================================
+For this particular reason the grant type "authorization" has been created, so
+that the step after the authorization that exchanges the code and the secret
+with the authorization code is skipped, so the authorization code is immediately
+returned.
 
-%==============================================================================
-\section{PKCE}
-PKCE (proof key for code exchange), superset feature on top of oauth2
+This particular sequence of events opens up a vulnerability:
+when the access token is returned by the authorization response, malicious apps
+running alongside our OAuth2 client are able to read it, and therefore use it as
+our application would.
 
+PKCE is a superset feature for OAuth2, idealized for preventing this kind of
+attack, called "authorization code interception".
 
-Why should you care:
-security is important, only fully server side hosted application can securely
-store secrets. Desktop and mobile applications are public, and it's keys cannot
-be protected.
-
-Public applications can be exploited via authorization code interception,
-whereby a malicious application running alongside your application can intercept
-the authorization code and obtain authorization token.
-Oauth2.1 specification will mandate that all implementation of the authorization
+OAuth2.1 specification will mandate that all implementation of the authorization
 grant type use PKCE.
 
 %==============================================================================
@@ -362,9 +356,9 @@ has tried to tamper with the jwt.
 Fields contained in the jwt are called claims.
 There is also a standard way that a client can ask additional information from the
 authorization server, such as the email address.
-
 %==============================================================================
 \section{JWT}
+\label{jwt}
 \subsection{JWT}
 JWT is an internet standard for creating JSON based access tokens. It asserts
 some number of claims in the token itself, so that authentication protocols that
@@ -432,7 +426,6 @@ token. Even if a refresh token is deleted from the database, it's corrispettive
 access token is still usable until expiry.
 
 \subsection{Pros and Cons of JWTs}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection{Pros:}
 \begin{itemize}
     \item Stateless
