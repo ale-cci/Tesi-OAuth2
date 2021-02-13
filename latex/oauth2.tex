@@ -1,7 +1,7 @@
 %!TEX program = xelatex
 % rubber: set program xelatex
 % vim: tw=80: colorcolumn=80: spell
-\documentclass[20pt]{style}
+\documentclass[11pt]{style}
 
 \usepackage{alltt}
 
@@ -57,7 +57,7 @@ access to third party applications.
 This standard is a protocol that takes the name of \textbf{OAuth2}.
 
 Often confused with API
-keys\footnote{If you are interested in api keys:
+keys\footnote{More on API keys:
 \texttt{https://en.wikipedia.org/wiki/Application\_programming\_interface\_key}}
 for their similar use and terminology, OAuth2 grants the permission to access
 user data to third party application.
@@ -146,17 +146,17 @@ specifically crafted redirect url, that the clients redirects the user to.
 The url points to the authorization's server, and it contains parameters in the
 form of a querystring. Here is an example:
 
-\begin{lstlisting}[language=Python]
-import os
+\begin{lstlisting}
 import urllib.request
 
 callback_url = urllib.request.quote('http://localhost:8080')
+client_id = 'YOUR-CLIENT-ID-HERE'
 
 redirect_to = (
     'https://www.googleapis.com'
     f'?redirect_uri={callback_url}'
-    f'&client_id=<YOUR_CLIENT_ID>'
-    f'&grant_type=code'
+    f'&client_id={client_id}'
+     '&grant_type=code'
 )
 \end{lstlisting}
 
@@ -305,16 +305,17 @@ Provide an access token at each client, which they could use to validate their
 identity at each API request.  This token could be either valid, expired,
 revoked or invalid.
 
-\begin{alltt}
-    \$ curl -v --header 'Authorization: Bearer 1234' http://localhost:8080/api
+\begin{lstlisting}[language=bash]
+$ curl -v --header 'Authorization: Bearer 1234' \
+    http://localhost:8080/api
 
-    > GET / HTTP/1.1
-    > Host: localhost:8080
-    > User-Agent: curl/7.72.0
-    > Accept: */*
-    > Authorization: Bearer 1234
-    ...
-\end{alltt}
+> GET / HTTP/1.1
+> Host: localhost:8080
+> User-Agent: curl/7.72.0
+> Accept: */*
+> Authorization: Bearer 1234
+...
+\end{lstlisting}
 
 The OAuth2 protocol provides a secure and standardized way for creating and exchanging those token between client and server.
 

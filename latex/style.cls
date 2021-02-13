@@ -2,7 +2,14 @@
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesClass{style}[30/03/2020 v0.1 Custom class]
 
-\LoadClass[a4paper]{article}
+\def\@@ptsize{12pt}
+\DeclareOption{10pt}{\def\@@ptsize{10pt}}
+\DeclareOption{11pt}{\def\@@ptsize{11pt}}
+\DeclareOption{12pt}{\def\@@ptsize{12pt}}
+\DeclareOption*{\PassOptionsToClass{\CurrentOption}{report}}
+\ProcessOptions\relax
+
+\LoadClass[a4paper,\@@ptsize]{article}
 \RequirePackage{xcolor}
 \RequirePackage[margin=1.2in]{geometry}
 \RequirePackage{amsmath}
