@@ -17,6 +17,6 @@ Now go to http://localhost:3333/notebooks/OAuth2-presentation.ipynb and you shou
 In order to make all steps work you have to configure a google cloud project (extra steps are required)
 
 ##### Useful links
-* PDF (moved)
+* [PDF](https://bitbucket.org/ale-cci/tesi-oauth2/downloads/oauth2.pdf)
 * [Scaletta tesi](./zettel/scaletta.md)
 * [Official OAuth protocol documentation](https://oauth.net/2/)
