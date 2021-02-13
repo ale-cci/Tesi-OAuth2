@@ -3,7 +3,7 @@ pipelines:
   - step:
       name: 'Build PDF'
       script:
-        - docker-compose up -d xelatex
+        - docker run --rm -v $PWD/latex:/data alecci/xelatex:latest
       services:
         - docker
       caches:
