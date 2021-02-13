@@ -57,16 +57,53 @@ access to third party applications.
 This standard is a protocol that takes the name of \textbf{OAuth2}.
 
 Often confused with API
-keys\footnote{If you are interested in api keys: https://en.wikipedia.org/wiki/Application\_programming\_interface\_key}
+keys\footnote{If you are interested in api keys:
+\texttt{https://en.wikipedia.org/wiki/Application\_programming\_interface\_key}}
 for their similar use and terminology, OAuth2 grants the permission to access
 user data to third party application.
 The protocol specifies that, instead of you handing them your credentials, an
 authentication server forges a key (commonly called \textbf{access token}) that
 will be used by clients to perform requests to the user data.
 
-\subsection{The Terminology}
-Before deep diving into the protocol's specifications, here are some terms that
-i am going to use:
+\subsection{An use case with some terminology}
+
+Let's assume you go on a vacation with your friends, during that vacation you
+take a lot of pictures and videos, and your friends do it too.
+Each one of you uploads the pictures and videos he took on google cloud, and you
+you have a shared folder that weights a few Giga.
+
+At the end of the vacation you want to organize all the pictures and videos
+automatically, by adding them labels and name them all in a consistent way, for
+example using the place and the date of where the picture was created.
+
+This sounds like a lot of work to do all by hand, but thankfully you find an
+online application that does exactly what you need: by combining image
+processing and the EXIF tags of each picture or video it can automatically
+create labels and rename them. Neat! Now you can delegate all the work with that
+application.
+
+Conveniently that application has a button called "Access with google drive"
+that when pressed opens up the google login page and asks you if you want to
+grant access to the application.
+
+You perform the login with google, accept the permissions and magically the
+application starts doing it's work, labeling and renaming images.
+
+
+% ================================================================================
+
+Let's assume that you have uploaded some photos or videos on google drive of a
+vacation you recently did, and now you want to use
+
+resource owner: you
+authorization server: google
+client: a crappy app
+resource server: google drive
+resource private document
+
+
+First and foremost the \textbf{resource owner}, or in other words the one who
+actually owns the \textbf{protected resource} or resources.
 
 \begin{itemize}
     \item \textbf{resource owner} (you)
