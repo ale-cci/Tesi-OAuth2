@@ -1,4 +1,4 @@
-# Oauth2 & OpenID
+# OAuth2 & OpenID
 ##### Dependencies
 * `docker` + `docker-compose`: for jupiter notebook and pdf compilation
 
@@ -7,13 +7,16 @@
 $ docker-compose up xelatex
 ```
 
-##### Start presentation
+##### Jupiter Notebook
+This repo contains a useful notebook that will be my presentation.
+With it you could play around with JWTs, see what they contain and
+call interactively APIs using OAuth2.
 ```sh
 $ docker-compose up --build -d notebook
 ```
-Now go to http://localhost:3333/notebooks/OAuth2-presentation.ipynb and you should see the presentation.
+Now go to [http://localhost:3333](http://localhost:3333/notebooks/OAuth2-presentation.ipynb) and start playing around with it.
 
-##### Disclaimer:
+###### Disclaimer:
 In order to make all steps work you have to configure a google cloud project (extra steps are required)
 
 ##### Useful links
