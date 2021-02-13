@@ -13,7 +13,7 @@
 \RequirePackage{tikz}
 \RequirePackage{fontspec}
 \RequirePackage{listings}
-
+%\RequirePackage{lstautogobble}  % Fix relative indenting
 \setmainfont{Roboto}
 
 % Not required
@@ -40,12 +40,23 @@
     breaklines=true,
     backgroundcolor=\color{clr-code-bg},
     basicstyle=\small\ttfamily,
+    framesep=10pt,
     commentstyle=\color{clr-code-comment},
     keywordstyle=\color{clr-code-keyword}\bfseries,
     stringstyle=\color{clr-code-string},
     numberstyle=\color{clr-code-string},
-    showstringspaces=false
+    showstringspaces=false,
+    rulecolor=\color{clr-code-bg},
+    xleftmargin=10pt,
+    xrightmargin=10pt,
+    frame=single,
 }
+
+
+\definecolor{bluekeywords}{rgb}{0.13, 0.13, 1}
+\definecolor{greencomments}{rgb}{0, 0.5, 0}
+\definecolor{redstrings}{rgb}{0.9, 0, 0}
+\definecolor{graynumbers}{rgb}{0.5, 0.5, 0.5}
 
 
 % show colorbox under code words used in paragraphs

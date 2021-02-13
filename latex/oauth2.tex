@@ -65,7 +65,7 @@ The protocol specifies that, instead of you handing them your credentials, an
 authentication server forges a key (commonly called \textbf{access token}) that
 will be used by clients to perform requests to the user data.
 
-\subsection{An use case with some terminology}
+\subsection{Example of OAuth2 use-case}
 
 Let's assume you go on a vacation with your friends, during that vacation you
 take a lot of pictures and videos, and your friends do it too.
@@ -89,31 +89,77 @@ grant access to the application.
 You perform the login with google, accept the permissions and magically the
 application starts doing it's work, labeling and renaming images.
 
-
 % ================================================================================
-
-Let's assume that you have uploaded some photos or videos on google drive of a
-vacation you recently did, and now you want to use
-
-resource owner: you
-authorization server: google
-client: a crappy app
-resource server: google drive
-resource private document
-
+\subsection{The terminology}
+What you have just read is a typical example of the OAuth2 flow, but beofre deep
+diving into the implementation and specification of this protocol, let's clear
+some terminology.
 
 First and foremost the \textbf{resource owner}, or in other words the one who
 actually owns the \textbf{protected resource} or resources.
 
 \begin{itemize}
-    \item \textbf{resource owner} (you)
-    \item the \textbf{client} (the application that want to access your data)
-    \item \textbf{authorization server} (application that knows the resource owner, where
-        the resource owner already has an account)
-    \item \textbf{resource server} (server that contains the data that the client wants
-        to use on behalf of the resource owner, sometimes it is the same as the
-        authorization server)
+    \item The \textbf{protected resources}, some form of private data that is
+        not publicly accessible, in the example's case the vacation's photo and
+        videos.
+    \item \textbf{resource owner}: the one who own the protected resource, in
+        the example's case you (and your friends).
+    \item \textbf{authorization server} the service that knows the resource
+        owner's identity, or in other words an application where the resource
+        owner has an account. In the example's case it's google.
+    \item the \textbf{client} or \textbf{third party application} is the
+        applications that requires access to the private resource (photos and
+        videos), or access to perform some actions on the private resource
+        (rename and assign them some labels).
+    \item the \textbf{resource server} is the one that has access to the private
+        data, sometimes is the same as the authorization, but as we see in our
+        example, it could be different.
+        In the example's case it's google drive \footnote{to be clear, google
+        has two different services: one for authorization and one for google
+        drive}.
 \end{itemize}
+
+\subsection{Authentication and Authorization}
+Authorization and authentication my sound similar to one another, but they are
+two distinct concepts, used in identity and access management:
+authentication says who you are, authorization says what actions you can
+perform.
+
+OAuth2 is only an authorization protocol, which means that it's only use is for
+granting access to protected resources to a client.
+
+Later we could see that it could be extended and used as an authentication
+provider with OpenID connect (page \pageref{openid}).
+
+\section{OAuth2 Protocol}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=.5\textwidth]{authorization-code.png}
+\end{figure}
+
+Enough with the chitchat, here comes the fun part, the protocol specifications,
+for practical example i will use python, for the simple reason that arguably it
+is one of the most readable programming languages out there.
+
+Above you could see the flow of the OAuth2 protocol, it all starts with a
+specifically crafted redirect url, that the clients redirects the user to.
+The url points to the authorization's server, and it contains parameters in the
+form of a querystring. Here is an example:
+
+\begin{lstlisting}[language=Python]
+import os
+import urllib.request
+
+callback_url = urllib.request.quote('http://localhost:8080')
+
+redirect_to = (
+    'https://www.googleapis.com'
+    f'?redirect_uri={callback_url}'
+    f'&client_id=<YOUR_CLIENT_ID>'
+    f'&grant_type=code'
+)
+\end{lstlisting}
+
 
 authorization and resource servers could be a third party service trusted by the
 resource server.
@@ -131,16 +177,6 @@ resource server.
     \item access\_token: key the client will use to communicate with the resource server.
 \end{itemize}
 
-\subsection{Authentication and Authorization}
-Authorization and authentication my sound similar to one another, but they are
-two distinct concepts, used in identity and access management:
-authentication says who you are, authorization says what actions you can
-perform.
-
-OAuth2 is an authorization protocol, which means that it's only use is for
-granting access to protected resources to a client.
-
-\section{OAuth2 Protocol}
 \subsection{The protocol}
 It all starts with a specifically crafted url:
 \begin{lstlisting}
@@ -320,11 +356,6 @@ The OAuth2 protocol provides a secure and standardized way for creating and exch
         The client uses the access token for APIs requests.
 \end{enumerate}
 
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=.5\textwidth]{authorization-code.png}
-\end{figure}
-
 \subsection{Revoke an access token}
 By requirements, an OAuth2 authentication server must expose an endpoint for
 revoking the validity of a particular token.
@@ -356,6 +387,7 @@ grant type use PKCE.
 
 %==============================================================================
 \section{OpenID connect}
+\label{openid}
 
 oauth2.0 is designed only for authorization and granting access to data and
 feature from one application to another.
