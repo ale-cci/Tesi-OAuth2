@@ -1,0 +1,18 @@
+pipelines:
+  default:
+  - step:
+      name: 'Build PDF'
+      script:
+        - docker-compose up -d xelatex
+      services:
+        - docker
+      caches:
+        - docker
+  - step:
+     name: 'Store PDF'
+     script:
+     - pipe: atlassian/bitbucket-upload-file:0.1.2
+       variables:
+        BITBUCKET_USERNAME: $BITBUCKET_USERNAME
+        BITBUCKET_APP_PASSWORD: $BITBUCKET_APP_PASSWORD
+        FILENAME: 'latex/oauth2.pdf'
