@@ -141,8 +141,14 @@ Enough with the chitchat, here comes the fun part, the protocol specifications,
 for practical example i will use python, for the simple reason that arguably it
 is one of the most readable programming languages out there.
 
-Above you could see the flow of the OAuth2 protocol, it all starts with a
-specifically crafted redirect url, that the clients redirects the user to.
+Above you could see the flow of the OAuth2 protocol.
+
+It starts with a specifically crafted url, when the client needs the access to
+the protected resource, it redirects the user to that url.
+
+The url contains a query string
+It starts with a specifically crafted redirect url, that the clients
+redirects the user to.
 The url points to the authorization's server, and it contains parameters in the
 form of a querystring. Here is an example:
 
@@ -152,12 +158,13 @@ import urllib.request
 callback_url = urllib.request.quote('http://localhost:8080')
 client_id = 'YOUR-CLIENT-ID-HERE'
 
-redirect_to = (
-    'https://www.googleapis.com'
-    f'?redirect_uri={callback_url}'
-    f'&client_id={client_id}'
-     '&grant_type=code'
-)
+querystring = urlencode({
+    'redirect_uri': callback_url,
+    'client_id':    client_id,
+    'grant_type':   'code'
+})
+
+redirect_to = f'https://www.googleapis.com?{querystring}'
 \end{lstlisting}
 
 
