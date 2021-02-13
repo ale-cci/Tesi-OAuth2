@@ -148,6 +148,14 @@
 \def\l@subsection#1#2{\begingroup\let\numberline\@gobble\latexl@subsection{#1}{#2}\endgroup}
 \makeatother
 
+\renewcommand{\footnoterule}{%
+  \kern 3pt
+  {
+      \color{clr-lightgray}
+      \hrule width \textwidth height .5pt
+  }
+  \kern 5pt
+}
 % Paragraph styling
 \setlength\parindent{0em}
 \setlength\parskip{1em}
