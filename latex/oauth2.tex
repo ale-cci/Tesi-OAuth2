@@ -243,92 +243,42 @@ Before going in the depths of oauth2 let's map some terminology
 
 client doen't use the access token, it's jibbrish.
 Different ways to achieve the goal, here are a few of them:
-\subsubsection{Direct transmission of the user identifier}
-Directly send the user id to the server
-\begin{alltt}
-    \$ curl -v -X POST http://localhost:8080/db_auth '\{"user-id": 1\}'
-\end{alltt}
-I do not want to sped too much time on this one. It is for sure one of the
-fastest
-and less secure way to communicate the user identity.
 
-Even someone with some basic knowledge of programming could recognize that by changing the
-value of \texttt{user-id}, the request would still be valid and you are recognized as
-another user.
-
-\subsubsection{Http Basic Authentication}
-Http Basic Auth: each API request is signed with a username and a passwrod, encoded in base64
-\begin{alltt}
-    \$ curl -u Aladdin:OpenSesamus -v http://localhost:8080/basic
-
-    > GET / HTTP/1.1
-    > Host: localhost:8080
-    > Authorization: Basic QWxhZGRpbjpPcGVuU2VzYW11cw==
-    > User-Agent: curl/7.72.0
-    > Accept: */*
-    ...
-\end{alltt}
-Since the credentials are neither hashed nor encrypted, your username and password are always visible by
-someone who could read the headers.
-Therefore this protocol requires an https channel in order to be somewhat secure.
-
-\subsubsection{API Key}
-\begin{alltt}
-    \$ curl --header Authorization: Apikey 1234567890abcdef
-\end{alltt}
-API keys make sense when the users of an API are only developers.
-
-\subsubsection{Public/Private Key}
-\begin{alltt}
-    \$ ssh-keygen -v
-    The key fingerprint is:
-    SHA256:tFKUq1HLfJ3Iy6toGec804dKXPgx4P6rrL6Tc4S0wVY ale-cci@vagrant
-
-    The key's randomart image is:
-    +---[RSA 3072]----+
-    |        ..       |
-    |       .E        |
-    |     . =++ o .   |
-    |      *+=++ o    |
-    |     o.*So+.     |
-    |      =+oooo     |
-    |       O+..o     |
-    |      *+*.+ .    |
-    |     o=*=*oo     |
-    +----[SHA256]-----+
-
-
-    \$ ssh-copy-id -i ~/.ssh/id_rsa username@host
-\end{alltt}
-Authorization via asymmetric cryptography. Two keys are generate a public and a secret one.
-The public key is, as the name suggests, public and everyone could read it.
-The client encodes his messages with the private key; the receivers could validate the authenticity of those messages using the public key.
-
-This is one of the safest methods, but it's not viable as we need to distribute in some way the private key to
-trusted users.
 
 \subsubsection{OAuth2}
 Provide an access token at each client, which they could use to validate their
 identity at each API request.  This token could be either valid, expired,
 revoked or invalid.
 
+\subsubsection{Small digression on API Key}
 \begin{lstlisting}[language=bash]
-$ curl -v --header 'Authorization: Bearer 1234' \
+$ curl --header 'Authorization: Apikey 1234567890abcdef'
+\end{lstlisting}
+API keys make sense when the users of an API are only developers.
+
+
+\begin{lstlisting}[language=bash]
+$ curl -v --header "Authorization: Bearer $ACCESS_TOKEN" \
     http://localhost:8080/api
 
 > GET / HTTP/1.1
 > Host: localhost:8080
 > User-Agent: curl/7.72.0
 > Accept: */*
-> Authorization: Bearer 1234
-...
+> Authorization: Bearer ...
 \end{lstlisting}
 
 The OAuth2 protocol provides a secure and standardized way for creating and exchanging those token between client and server.
 
 
 %==============================================================================
-\section{OAuth2 step by step}
+\section{OAuth2 overview}
+\begin{enumerate}
+    \item different grant type
+    \item born as an authorization protocol
+    \item quick comparison with SAML
+\end{enumerate}
+\section{OAuth2: authorization code}
 \subsection{Obtain an access token}
 
 \begin{enumerate}
@@ -371,31 +321,33 @@ revoking the validity of a particular token.
 In case the authentication is performed via JWT (see page \pageref{jwt})
 Something something
 
-%==============================================================================
-\subsection{Protocol Vulnerabilities}
-\subsubsection{PKCE (Proof Key for Code Exchange)}
-Public applications, such as desktop and mobile apps, are unable to securely
-store credentials, in our case, the client secret.
+\section{OAuth2: implicit flow}
+NOTE: Public application are not secure, therefore you cannot store a
+client-secret.
 
-For this particular reason the grant type "authorization" has been created, so
-that the step after the authorization that exchanges the code and the secret
-with the authorization code is skipped, so the authorization code is immediately
-returned.
+Normal flow with a shortcut
+NOTE: add diagram
+\begin{enumerate}
+    \item client redirects to the login page of the authorization provider
+    \item user performs login
+    \item auth provider redirects to the client page
+    \item client reads the access token directly from the GET params
+\end{enumerate}
 
-This particular sequence of events opens up a vulnerability:
-when the access token is returned by the authorization response, malicious apps
-running alongside our OAuth2 client are able to read it, and therefore use it as
-our application would.
+NOTE: check if it's advised to clean the url after the token is read
 
-PKCE is a superset feature for OAuth2, idealized for preventing this kind of
-attack, called "authorization code interception".
-
-OAuth2.1 specification will mandate that all implementation of the authorization
-grant type use PKCE.
+NOTE: Discuss why it's less secure, add reference to PKCE.
+\subsection{Two channel comunications: trusted and insecure}
+NOTE: difference between frontend and backend channels, explain why the code
+exchange via post is required, and other things.
 
 %==============================================================================
+\section{OAuth2: client credentials}
+NOTE: No user involved, just application to application comunication
 \section{OpenID connect}
 \label{openid}
+
+NOTE: tl.dr. just add 'openid' in the list of scopes
 
 oauth2.0 is designed only for authorization and granting access to data and
 feature from one application to another.
@@ -430,11 +382,16 @@ token.
 
 ID token is a specifically formatted token (JWT). Client can extract your user
 id, your email, when you logged in, when it expires, and it can tell if anyone
-has tried to tamper with the jwt.
+has tried to tamper with the JWT.
 
-Fields contained in the jwt are called claims.
+Fields contained in the JWT are called claims.
 There is also a standard way that a client can ask additional information from the
 authorization server, such as the email address.
+
+NOTE: add openid to the list of scopes.
+
+NOTE: with the openid specification, the /userinfo endpoint is created.
+It's used to get more informations about the user contained in the jwt.
 %==============================================================================
 \section{JWT}
 \label{jwt}
@@ -470,7 +427,99 @@ could easily verify if the token is valid or it has been altered.
 JWT created with an asymmetric key, can be generated by one server and verified
 by everyone thanks to public keys.
 
-\subsection{Access tokens}
+NOTE: the core concept behind JWTs is that you can trust them without hitting
+the database. Since they are cryptographically signed, just by reading the
+public key you can be sure that it was forged by the authentication provider.
+
+\subsubsection{JWT head}
+Example of JWT head:
+\begin{lstlisting}
+{
+    "kid": "1234",
+    "alg": "RSA",
+    "typ": "sig",
+}
+\end{lstlisting}
+
+\subsubsection{An example of JWT body:}
+\begin{lstlisting}
+{
+    "iss": "",
+    "aud": "",
+    "sub": "",
+}
+\end{lstlisting}
+\begin{itemize}
+    \item \texttt{iss} : issuer, who created the jwt
+    \item \texttt{aud} : audience, for who is intended the jwt.
+    \item \texttt{sub} : subscriber identity, unique key that identifies the
+        user
+\end{itemize}
+
+\subsubsection{the JWT signature}
+The signature is simply calculated by base64 encoding the head and the body of
+the JWT, and catenate them with a dot.
+\begin{lstlisting}
+head = json.dumps({...})
+body = json.dumps({...})
+
+payload = '.'.join([head, body])
+signature = compute_hash(payload)
+\end{lstlisting}
+
+Some reserved body claims according to the specification are:
+
+\subsubsection{Generate public Public/Private Key}
+\begin{alltt}
+    \$ ssh-keygen -v
+    The key fingerprint is:
+    SHA256:tFKUq1HLfJ3Iy6toGec804dKXPgx4P6rrL6Tc4S0wVY ale-cci@vagrant
+
+    The key's randomart image is:
+    +---[RSA 3072]----+
+    |        ..       |
+    |       .E        |
+    |     . =++ o .   |
+    |      *+=++ o    |
+    |     o.*So+.     |
+    |      =+oooo     |
+    |       O+..o     |
+    |      *+*.+ .    |
+    |     o=*=*oo     |
+    +----[SHA256]-----+
+
+
+    \$ ssh-copy-id -i ~/.ssh/id_rsa username@host
+\end{alltt}
+Authorization via asymmetric cryptography. Two keys are generate a public and a secret one.
+The public key is, as the name suggests, public and everyone could read it.
+The client encodes his messages with the private key; the receivers could validate the authenticity of those messages using the public key.
+
+This is one of the safest methods, but it's not viable as we need to distribute in some way the private key to
+trusted users.
+
+\subsubsection{Share the public key}
+NOTE: \texttt{.well-known/jwks.json}
+\begin{lstlisting}
+{
+    "keys": [
+        { "kid": "",
+          "n": "TODO",
+          "e": "TODO"}
+    ]
+}
+\end{lstlisting}
+
+JSON Web Keys are javascript object notation data structures that represents a
+cryptographic key.
+
+The specification \footnote{https://tools.ietf.org/html/rfc7517}
+
+\subsection{JWS \& JWE}
+NOTE: Token could be signed, encrypted or both.
+
+
+\section{Access tokens}
 Since we are able to trust JWTs  without the use of a database, they offer the
 main advantage to not issue database calls to verify the user identity.
 
@@ -504,6 +553,10 @@ With that said, it still lies the problem that there is no easy way to revoke a
 token. Even if a refresh token is deleted from the database, it's corrispettive
 access token is still usable until expiry.
 
+TODO: Access token example
+\subsection{Access tokens in openid}
+TODO: Access token in openid example
+
 \subsection{Pros and Cons of JWTs}
 \subsubsection{Pros:}
 \begin{itemize}
@@ -525,17 +578,46 @@ access token is still usable until expiry.
     \item Insecure implementation libraries (no algorithm)
 \end{itemize}
 
-\subsection{JWS e JWE}
-Token could be signed, encrypted or both.
+%==============================================================================
+\section{Protocol Vulnerabilities}
+\subsection{PKCE (Proof Key for Code Exchange)}
+NOTE: with the implicit flow, you could just read the access token from the GET
+url, and perform requests as an authenticated user.
 
-\subsection{JWS Validation}
-Verify the SHA256 signature
+Public applications, such as desktop and mobile apps, are unable to securely
+store credentials, in our case, the client secret.
 
-\subsection{JWK}
-JSON Web Keys are javascript object notation data structures that represents a
-cryptographic key.
+For this particular reason the implicit flow has been created, so
+that the step after the authorization that exchanges the code and the secret
+with the authorization code is skipped, so the authorization code is immediately
+returned.
 
-The specification \footnote{https://tools.ietf.org/html/rfc7517}
+This particular sequence of events opens up a vulnerability:
+when the access token is returned by the authorization response, malicious apps
+running alongside our OAuth2 client are able to read it, and therefore use it as
+our application would.
+
+PKCE is a superset feature for OAuth2, idealized for preventing this kind of
+attack, called "authorization code interception".
+
+OAuth2.1 specification will mandate that all implementation of the authorization
+grant type use PKCE.
+
+\begin{enumerate}
+    \item the client generates a random string, and calculates the hash using a
+        hashing function
+    \item the client performs the normal oauth2 flow, providing along with the
+        client secret, the random string hashed value.
+    \item when the authorization server performs a successful redirect with the
+        'code', the client exchanges with a post request, the code and the
+        unhashed secret with the access token.
+\end{enumerate}
+
+This feature blocks "easy" oauth2 attacks, that could be performed simply by
+reading the access token from the GET request.
+
+\subsubsection{Example script}
+NOTE: example script in python
 
 \section{Dissertation Acknowledgments}
 \begin{itemize}
