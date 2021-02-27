@@ -276,6 +276,25 @@ The OAuth2 protocol provides a secure and standardized way for creating and exch
 
 %==============================================================================
 \section{OAuth2 overview}
+An OAuth2 grant type refers a way of how an application obtains the access
+token.
+
+The grant type described in the specification are:
+\begin{itemize}
+    \item authorization code
+    \item implicit
+    \item client credentials
+    \item password
+\end{itemize}
+
+The OAuth 2.0 Password Grant Type is a way to get an access token given a
+username and password. It’s typically used only by a service’s own mobile apps
+and is not usually made available to third party developers.
+
+OAuth2 was conceptualized only as an authorization protocol, supporting multiple
+types of flows for obtaining the access token.
+
+OAuth2 is an extensible protocol, it was born as an authorization protocol,
 \begin{enumerate}
     \item different grant type
     \item born as an authorization protocol
@@ -418,12 +437,15 @@ and overheard.
      |         |                                  |               |
      +---------+                                  +---------------+
 \end{alltt}
-Maybe the easiest of the grants. The client can retrieve the access token using
-only the client credentials and client id.
+The client credentials flow is intended for server-side (confidential) client
+applications, with no end user, which normally describes machine to machine
+communication.
+
+The client ID and secret are sent base64 encoded, using the http basic
+auth protocol.
 
 Since the client authentication is used, no additional authorization is needed.
 
-NOTE: sec 4.4
 \begin{lstlisting}
      POST /token HTTP/1.1
      Host: server.example.com
@@ -431,9 +453,65 @@ NOTE: sec 4.4
      Content-Type: application/x-www-form-urlencoded
 
      grant_type=client_credentials
+     &scope=customScope
 \end{lstlisting}
 
-NOTE: Successful response 5.1
+On successful response, the application receives tan access token:
+\begin{lstlisting}
+{
+    "access_token": "eyJhbG[...]1LQ",
+    "token_type": "Bearer",
+    "expires_in": 3600,
+    "scope": "customScope"
+}
+\end{lstlisting}
+
+\section{OAuth2: grant type password}
+This grant type is one of the simples grants, involving only one step: the
+application presents a traditional username and password login form to collect
+the user's credentials and make a POST request to the server to exchange the
+password for an access token.
+
+\begin{alltt}
+POST /oauth/token HTTP/1.1
+Host: authorization-server.com
+Content-type: application/x-www-form-urlencoded
+
+grant_type=password
+&username=exampleuser
+&password=1234luggage
+&client_id=xxxxxxxxxx
+\end{alltt}
+
+The server replies with an access token, in the same format as the other grant
+types.
+
+\begin{lstlisting}
+{
+  "access_token": "MTQ0NjOkZmQ5OTM5NDE9ZTZjNGZmZjI3",
+  "token_type": "bearer",
+  "expires_in": 3600,
+  "scope": "create"
+}
+\end{lstlisting}
+\subsection{When the password grant type is used?}
+Since this grant type requires to collect the user's password, this is the exact
+problem that OAuth was created to avoid in the first place, so why was it
+included as part of OAuth in first place?
+
+While a service should never let a third party app use the password grant, it is
+reasonable for a service's own application to ask the user to enter their
+password.
+For example, if you download Twitter's mobile app, you would not be surprised if
+the first thing it does when launched is ask for you Twitter password.
+On the other hand if you download a third-party Gmail application, it should use
+Google's OAuth server rather than ask you to enter your Gmail password.
+
+This grant type let's the application take advantage of the rest of benefits
+that OAuth provides around access tokens and token lifetimes.
+The user's password instead of being stored on the device, is exchanged with the
+access token.
+
 \section{OpenID connect}
 \label{openid}
 
@@ -482,6 +560,7 @@ NOTE: add OpenID to the list of scopes.
 
 NOTE: with the OpenID specification, the \texttt{/userinfo} endpoint is created.
 It's used to get more informations about the user contained in the JWT.
+
 %==============================================================================
 \section{JWT}
 \label{jwt}
@@ -889,12 +968,17 @@ introduced.
     \bibitem{google api dev}
     Using OAuth 2.0 to Access Gooogle APIs
     \\
-    \texttt{https://developers.google.com/identity/protocols/oauth2}
+    \url{https://developers.google.com/identity/protocols/oauth2}
 
     \bibitem{Api Keys vs Oauth}
     API Keys vs OAuth Tokens vs JSON Web Tokens
     \\
-    \texttt{https://zapier.com/engineering/apikey-oauth-jwt/}
+    \url{https://zapier.com/engineering/apikey-oauth-jwt/}
+
+    \bibitem{okta}
+    The OAuth2 password grant
+    \\
+    \url{https://developer.okta.com/blog/2018/06/29/what-is-the-oauth2-password-grant}
 
 \end{thebibliography}
 
