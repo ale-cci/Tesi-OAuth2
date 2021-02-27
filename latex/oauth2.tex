@@ -4,7 +4,10 @@
 \documentclass[11pt]{style}
 
 \usepackage{alltt}
+\usepackage{longtable}
+\usepackage[strict]{chngpage}
 
+\usepackage{hyperref}
 \setcounter{tocdepth}{2} % Show only sections in table of contents
 
 \title{OAuth2}
@@ -39,7 +42,7 @@ We will see what OpenID connect and the meaning of Identity Provider, Single Sig
 and JWT.
 \subsection{Reading target}
 This paper is suited for people who are new to authentication protocols, want to
-integrate Oauth2 with their webserver, or want to know in depth how JWT and
+integrate OAuth2 with their web server, or want to know in depth how JWT and
 OpenID works.
 
 \section{Introduction}
@@ -69,7 +72,7 @@ will be used by clients to perform requests to the user data.
 
 Let's assume you go on a vacation with your friends, during that vacation you
 take a lot of pictures and videos, and your friends do it too.
-Each one of you uploads the pictures and videos he took on google cloud, and
+Each one of you uploads the pictures and videos he took on Google cloud, and
 you have a shared folder that weights a few Giga.
 
 At the end of the vacation you want to organize all the pictures and videos
@@ -82,16 +85,16 @@ processing and the EXIF tags of each picture or video it can automatically
 create labels and rename them. Neat! Now you can delegate all the work with that
 application.
 
-Conveniently that application has a button called "Access with google drive"
-that when pressed opens up the google login page and asks you if you want to
+Conveniently that application has a button called "Access with Google drive"
+that when pressed opens up the Google login page and asks you if you want to
 grant access to the application.
 
-You perform the login with google, accept the permissions and magically the
+You perform the login with Google, accept the permissions and magically the
 application starts doing it's work, labeling and renaming images.
 
 % ================================================================================
 \subsection{The terminology}
-What you have just read is a typical example of the OAuth2 flow, but beofre deep
+What you have just read is a typical example of the OAuth2 flow, but before deep
 diving into the implementation and specification of this protocol, let's clear
 some terminology.
 
@@ -106,7 +109,7 @@ actually owns the \textbf{protected resource} or resources.
         the example's case you (and your friends).
     \item \textbf{authorization server} the service that knows the resource
         owner's identity, or in other words an application where the resource
-        owner has an account. In the example's case it's google.
+        owner has an account. In the example's case it's Google.
     \item the \textbf{client} or \textbf{third party application} is the
         applications that requires access to the private resource (photos and
         videos), or access to perform some actions on the private resource
@@ -114,8 +117,8 @@ actually owns the \textbf{protected resource} or resources.
     \item the \textbf{resource server} is the one that has access to the private
         data, sometimes is the same as the authorization, but as we see in our
         example, it could be different.
-        In the example's case it's google drive \footnote{to be clear, google
-        has two different services: one for authorization and one for google
+        In the example's case it's Google drive \footnote{to be clear, Google
+        has two different services: one for authorization and one for Google
         drive}.
 \end{itemize}
 
@@ -143,14 +146,14 @@ is one of the most readable programming languages out there.
 
 Above you could see the flow of the OAuth2 protocol.
 
-It starts with a specifically crafted url, when the client needs the access to
-the protected resource, it redirects the user to that url.
+It starts with a specifically crafted URL, when the client needs the access to
+the protected resource, it redirects the user to that URL.
 
-The url contains a query string
-It starts with a specifically crafted redirect url, that the clients
+The URL contains a query string
+It starts with a specifically crafted redirect URL, that the clients
 redirects the user to.
-The url points to the authorization's server, and it contains parameters in the
-form of a querystring. Here is an example:
+The URL points to the authorization's server, and it contains parameters in the
+form of a query string. Here is an example:
 
 \begin{lstlisting}
 import urllib.request
@@ -168,7 +171,7 @@ redirect_to = f'https://www.googleapis.com?{querystring}'
 \end{lstlisting}
 
 
-authorization and resource servers could be a third party service trusted by the
+Authorization and resource servers could be a third party service trusted by the
 resource server.
 
 \begin{itemize}
@@ -176,16 +179,16 @@ resource server.
     \item  response type: type of the information the client expects to receive
         (most common code, (authorization code))
     \item  scope: permission that the client wants
-    \item  consent: authorization server takes the scopes and verifies wether or not
+    \item  consent: authorization server takes the scopes and verifies whether or not
         it want to give client permissions
     \item  client\_id: used to identify the client with the authorization server
-    \item  client\_secret: secret password that only client and auth server knows
-    \item  auth\_code: short lived code that server sends to the client
+    \item  client\_secret: secret password that only client and authorization server knows
+    \item  \texttt{auth\_code}: short lived code that server sends to the client
     \item access\_token: key the client will use to communicate with the resource server.
 \end{itemize}
 
 \subsection{The protocol}
-It all starts with a specifically crafted url:
+It all starts with a specifically crafted URL:
 \begin{lstlisting}
 https://www.googleapis.com
     ?redirect_uri=http://localhost:3030
@@ -195,12 +198,12 @@ https://www.googleapis.com
 \end{lstlisting}
 
 In the login prompt, users sees the assertion that will be inserted in the
-oauth2 jwt.
+OAuth2 JWT.
 
 OAuth2 flow is always between website A and B, the user has only to consent the
-oauth2 request.
+OAuth2 request.
 
-It all starts with a specially crafted url, besides the host, it includes extra
+It all starts with a specially crafted URL, besides the host, it includes extra
 information that says what the host should do, they include the registered
 application, the redirect uri (once discord is done the authorization the host
 will send you there). Response type is for saying that you want a code back, and
@@ -211,7 +214,7 @@ scope is the actual data that you want to access.
 
 Today we have agreed to standards, to allow one service to securely allow access
 to another.
-The first one is oauth (2.0), a security standard where you give an application
+The first one is OAuth2 (Open Authorization 2.0), a security standard where you give an application
 permissions to access your data in another application, instead of giving them
 username and password, it gives them a key that allows it to access data or do
 things on your behalf, on another application.
@@ -238,10 +241,10 @@ to the website and the application can now access your contacts.
 
 Visible and invisible steps to grant consent.
 \subsection{Terminology}
-Before going in the depths of oauth2 let's map some terminology
-(oauth2 protocol explained)
+Before going in the depths of OAuth2 let's map some terminology
+(OAuth2 protocol explained)
 
-client doen't use the access token, it's jibbrish.
+Client does not use the access token, it's gibberish.
 Different ways to achieve the goal, here are a few of them:
 
 
@@ -289,7 +292,8 @@ The OAuth2 protocol provides a secure and standardized way for creating and exch
         \end{alltt}
 
     \item
-        If the authorization is successful, the oauth server will redirect to \lstinline{redirect_uri} passing a \lstinline{code}
+        If the authorization is successful, the OAuth2 server will redirect to
+        \lstinline{redirect\_uri} passing a \lstinline{code}
         as GET parameter. Otherwise \lstinline{error} contains the reason why the authorization was not successful.
         \begin{alltt}
     POST /oauth/token HTTP/1.1
@@ -371,24 +375,37 @@ Therefore the steps required to perform the authorization are reduced to 3:
 \end{alltt}
 
 
-This protocol is a bit "quicker" than the other one (if you want to define it
+This protocol is a bit "faster" than the other one (if you want to define it
 like that), because it skips the intermediate step to exchange code with access
 token.
 
 But it is clear that if an external application (like a chrome extension) reads
 your "\texttt{window.location}", you are basically done, and the innocent chrome
-extension could perform oauth requests with your account, without you having to
+extension could perform OAuth2 requests with your account, without you having to
 give it the permissions!
 
-A solution to this problem is discussed later in this dissertion in the PKCE
+A solution to this problem is discussed later in this dissertation at the PKCE
 section (pg. \pageref{pkce})
 
-It is advised to remove the access token from the url once you have read it, to
+It is advised to remove the access token from the URL once you have read it, to
 minimize the possibility to leak it.
 
-\subsection{Two channel comunications: trusted and insecure}
-NOTE: difference between frontend and backend channels, explain why the code
-exchange via post is required, and other things.
+\subsection{Two channel communications: trusted and insecure}
+There are no perfectly secured channels in the real world, but there are at
+best, only ways to make a less secure channel more secure.
+
+In the standard flow of the OAuth2 protocol (grant code), two channels are
+involved:
+\begin{itemize}
+    \item a front-end channel, used for redirect and a first exchange of client
+        id with an authorization code
+    \item a back-end channel, used for exchanging the code received from the
+        less trusted channel with the authorization provider
+\end{itemize}
+
+The "back-end channel" takes the name of "trusted channel". On the other hand,
+the fronted takes the names of "insecure channels", because it's easily tampered
+and overheard.
 
 %==============================================================================
 \section{OAuth2: client credentials}
@@ -420,34 +437,34 @@ NOTE: Successful response 5.1
 \section{OpenID connect}
 \label{openid}
 
-NOTE: tl.dr. just add 'openid' in the list of scopes
+NOTE: TL.DR. just add 'openid' in the list of scopes
 
-oauth2.0 is designed only for authorization and granting access to data and
+OAuth2.0 is designed only for authorization and granting access to data and
 feature from one application to another.
-OAuth is like giving an application a key, that doesn't tell anything about who
+OAuth2 is like giving an application a key, that doesn't tell anything about who
 you are.
-OIDC is a thin layer that sits on top of Oauth2.0 that add functionality around
+OpenID Connect (OIDC) is a thin layer that sits on top of OAuth2.0 that add functionality around
 login and profile information about the person who is logged in.
-Instead of a key, openid is like giving a person a badge. A badge not only gives
+Instead of a key, OpenID is like giving a person a badge. A badge not only gives
 permission but also some basic information of who your are.
 
-OIDC enstablish a client to perform a login session.
-When an authorization server supports oidc it referred as an identity provider,
+OIDC establish a client to perform a login session.
+When an authorization server supports OIDC it referred as an identity provider,
 since it provides information about the resource owner back to the client.
 
 OpenID connect, enables scenarios where one login can be shared among multiple
 applications. It is also known as single sign on.
-For example an application can support SSO with social networking services (i.e.
-facebook or twitter) so that a user can use a login that he already has and it's
+For example an application can support single-sign-on (SSO) with social networking services (i.e.
+Facebook or Twitter) so that a user can use a login that he already has and it's
 comfortable using it.
 
-Example with ATM. atm is the client and it communicates with the bank. The bank
-card is the token issued by the bank. Not only gives access to the atm to your
+Example with ATM. ATM is the client and it communicates with the bank. The bank
+card is the token issued by the bank. Not only gives access to the ATM to your
 bank account, but holds some basic information about you, when the card expires
 and why you are.
 ATM cannot work without the infrastructure of the bank.
 
-On top of oauth, a specific scope of openid is used. The authorization server
+On top of OAuth2, a specific scope of OpenID is used. The authorization server
 goes to all the steps listed before and issues the client an authorization code
 via the client's browser.
 The key difference is that the client receives both an access token and an id
@@ -461,10 +478,10 @@ Fields contained in the JWT are called claims.
 There is also a standard way that a client can ask additional information from the
 authorization server, such as the email address.
 
-NOTE: add openid to the list of scopes.
+NOTE: add OpenID to the list of scopes.
 
-NOTE: with the openid specification, the /userinfo endpoint is created.
-It's used to get more informations about the user contained in the jwt.
+NOTE: with the OpenID specification, the \texttt{/userinfo} endpoint is created.
+It's used to get more informations about the user contained in the JWT.
 %==============================================================================
 \section{JWT}
 \label{jwt}
@@ -490,7 +507,7 @@ JWT are composed by three  parts:
 \begin{enumerate}
     \item Header: contains expiration, when it was created, encryption
         algorithm, etc.
-    \item Data: data contained in the jwt.
+    \item Data: data contained in the JWT.
     \item Signature: encrypted checksum obtained combining header and data.
 \end{enumerate}
 
@@ -523,8 +540,8 @@ Example of JWT head:
 }
 \end{lstlisting}
 \begin{itemize}
-    \item \texttt{iss} : issuer, who created the jwt
-    \item \texttt{aud} : audience, for who is intended the jwt.
+    \item \texttt{iss} : issuer, who created the JWT
+    \item \texttt{aud} : audience, for who is intended the JWT.
     \item \texttt{sub} : subscriber identity, unique key that identifies the
         user
 \end{itemize}
@@ -626,7 +643,96 @@ With that said, it still lies the problem that there is no easy way to revoke a
 token. Even if a refresh token is deleted from the database, it's corrispettive
 access token is still usable until expiry.
 
-TODO: Access token example
+\subsection{Example of access token}
+The following whitespaces between the access token sections are been introduced
+only to simplify the readability.
+It is important to say that Whitespaces characters are not allowed inside an
+access token.
+
+\begin{lstlisting}
+eyJhbGciOiAiUlMyNTYiLCAia2lkIjogIjEiLCAidHlwIjogIkpXVCJ9.
+
+eyJhdXRocyI6ICIiLCAiaXNzIjogImh0dHBzOi8vbG9jYWxob3N0OjgwMDAiLCAic3V
+iIjogMiwgImlhdCI6IDE2MTQzNzI0MzUuMDM4MTg4NywgImV4cCI6IDE2MTQzNzYwMz
+UuMDM4MTg4N30.
+
+slCAkhLRu9w-rBhmLUh487UPrqkJF1cBpXE5LyWRR1KH1XcPA_QW_uen06p7eHI
+GNKs6zSttlz0metnTjyuPFtkuU7I9Tu1djF2b5qVxOjbeDjGr_7ESuJZakKa7ljMloR
+bEW65FRpTGllIPBmFOqp8VXlM1h30ogT_Mm-zl1DoSUcIIhrDT3qFEGvRz3nw049g2R
+0hkTPrQK-J4bkG-7vf9f9H_PKOel2l2JtKk-3kZ-l8JNKpqM29BVpTRJzmuxNsZMwVP
+JJtt-hqBinTFJ15YHwKf_hKT3bjybibmm2ciXjFHvK3p4HREdXwvsR7A4la4dto4FCt
+V09IG1L9eF0kyjFkLdu2Unz7kf2YFz4fHvU7KPizJt3hPJASi_l8HJoBd1Y7sTPsjxf
+IUycjgGp0yc7qwGl9ZuQmDXZ3dMj4VpBIEKGNMVbwU8IzInIFuC9R-NpqI961YCWxJ0
+Qnly5rrHtw3EJy9GjW8u5cJkY7w0lJCbpvfULMqNpznSXKC0WaoictP7d80CKc9LwER
+cyZY8kg4PMbZGhc2VHdEyGL4r1xZDqxZhdAYFMXRSs4DVJk5GkISyBmo2kE0rR3QYTA
+NIuB80vbjuN9IzX6TTEPfFbvPdFd7oTrmN_xhR_uMu0Omv8f0o0bvXDeYRg1fL6AWFa
+BOYO1qWCdTxj7r8as
+\end{lstlisting}
+
+\subsubsection{Head}
+\begin{lstlisting}
+eyJhbGciOiAiUlMyNTYiLCAia2lkIjogIjEiLCAidHlwIjogIkpXVCJ9.
+\end{lstlisting}
+\begin{lstlisting}
+{"alg": "RS256", "kid": "1", "typ": "JWT"}
+\end{lstlisting}
+
+NOTE: Add link to jwks.json
+
+\subsubsection{Body}
+\begin{lstlisting}
+eyJhdXRocyI6ICIiLCAiaXNzIjogImh0dHBzOi8vbG9jYWxob3N0OjgwMDAiLCAic3V
+iIjogMiwgImlhdCI6IDE2MTQzNzI0MzUuMDM4MTg4NywgImV4cCI6IDE2MTQzNzYwMz
+UuMDM4MTg4N30.
+\end{lstlisting}
+\begin{lstlisting}
+{
+    "auths": "",
+    "iss": "https://localhost:8000",
+    "sub": 2,
+    "iat": 1614372435.0381887,
+    "exp": 1614376035.0381887
+}
+\end{lstlisting}
+
+NOTE: Describe fields introduced by OpenID
+OpenID specification describes these extra fields, required in the JWT body:
+\begin{itemize}
+    \item \texttt{sub}: subscriber identity, an unique identifier of the user in
+        the authorization server.
+    \item \texttt{iat} issued at, unix timestamp describing when the JWT has
+        been created.
+    \item \texttt{exp} expiry date of the JWT, expressed in unix timestamp.
+    \item \texttt{auths} is an example of custom field inserted from the authorization
+        provider
+\end{itemize}
+Other claims not included in this JWT are:
+All JWT reserved claims are listed here
+\begin{itemize}
+    \item \texttt{nbf} not before
+    \item \texttt{aud} Audience
+    \item \texttt{jti} JWT identity, unique identifier of this jwt
+    \item \texttt{emial} subscriber preferred email address
+\end{itemize}
+\subsubsection{Signature}
+\begin{lstlisting}
+slCAkhLRu9w-rBhmLUh487UPrqkJF1cBpXE5LyWRR1KH1XcPA_QW_uen06p7eHI
+GNKs6zSttlz0metnTjyuPFtkuU7I9Tu1djF2b5qVxOjbeDjGr_7ESuJZakKa7ljMloR
+bEW65FRpTGllIPBmFOqp8VXlM1h30ogT_Mm-zl1DoSUcIIhrDT3qFEGvRz3nw049g2R
+0hkTPrQK-J4bkG-7vf9f9H_PKOel2l2JtKk-3kZ-l8JNKpqM29BVpTRJzmuxNsZMwVP
+JJtt-hqBinTFJ15YHwKf_hKT3bjybibmm2ciXjFHvK3p4HREdXwvsR7A4la4dto4FCt
+V09IG1L9eF0kyjFkLdu2Unz7kf2YFz4fHvU7KPizJt3hPJASi_l8HJoBd1Y7sTPsjxf
+IUycjgGp0yc7qwGl9ZuQmDXZ3dMj4VpBIEKGNMVbwU8IzInIFuC9R-NpqI961YCWxJ0
+Qnly5rrHtw3EJy9GjW8u5cJkY7w0lJCbpvfULMqNpznSXKC0WaoictP7d80CKc9LwER
+cyZY8kg4PMbZGhc2VHdEyGL4r1xZDqxZhdAYFMXRSs4DVJk5GkISyBmo2kE0rR3QYTA
+NIuB80vbjuN9IzX6TTEPfFbvPdFd7oTrmN_xhR_uMu0Omv8f0o0bvXDeYRg1fL6AWFa
+BOYO1qWCdTxj7r8as
+\end{lstlisting}
+
+\begin{lstlisting}
+# Signature verification
+\end{lstlisting}
+
 \subsection{Access tokens in openid}
 TODO: Access token in openid example
 
@@ -693,6 +799,87 @@ reading the access token from the GET request.
 \subsubsection{Example script}
 NOTE: example script in python
 
+\section{OpenID Reserved claims}
+{
+    \setlength\LTleft{-1cm}%
+    \setlength\LTright{-1in}%
+    \begin{longtable}{||l|l|}
+        \hline
+        Claim Name             & Claim Description \\
+        \hline
+        \hline
+        iss                  & Issuer \\
+        sub                      & Subject \\
+        aud                      & Audience \\
+        exp                      & Expiration Time \\
+        nbf                      & Not Before \\
+        iat                      & Issued At \\
+        jti                      & JWT ID \\
+        name                     & Full name\\
+        given\_name                & Given name(s) or first name(s)\\
+        family\_name               & Surname(s) or last name(s)\\
+        middle\_name               & Middle name(s)\\
+        nickname                  & Casual name Shorthand name by which the End-User wishes to be referred to\\
+        preferred\_username        & Same as 'nickname'\\
+        profile                   & Profile page URL\\
+        picture                   & Profile picture URL\\
+        website                   & Web page or blog URL\\
+        email                     & Preferred e-mail address\\
+        email\_verified            & True if the e-mail address has been verified; otherwise false\\
+        gender                    & Gender\\
+        birthdate                 & Birthday\\
+        zoneinfo                  & Time zone\\
+        locale                    & Locale\\
+        phone\_number              & Preferred telephone number True if the phone number has\\
+        phone\_number\_verified     & been verified; otherwise false\\
+        address                   & Preferred postal address\\
+        updated\_at                & Time the information was last updated\\
+        azp                       & Authorized party - the party to which the ID Token was issued\\
+        nonce                     & Value used to associate a Client session with an ID Token\\
+        auth\_time                 & Time when the authentication occurred\\
+        at\_hash                   & Access Token hash value\\
+        c\_hash                    & Code hash value\\
+        acr                       & Authentication Context Class Reference\\
+        amr                       & Authentication Methods References\\
+        sub\_jwk                   & Public key used to check the signature of an ID Token\\
+        cnf                       & Confirmation\\
+        sip\_from\_tag              & SIP From tag header field parameter value\\
+        sip\_date                  & SIP Date header field value\\
+        sip\_callid                & SIP Call-Id header field value\\
+        sip\_cseq\_num              & SIP CSeq numeric header field parameter value\\
+        sip\_via\_branch            & SIP Via branch header field parameter value\\
+        orig                      & Originating Identity String\\
+        dest                      & Destination Identity String\\
+        mky                       & Media Key Fingerprint String\\
+        events                    & Security Events\\
+        toe                       & Time of Event\\
+        txn                       & Transaction Identifier\\
+        rph                       & Resource Priority Header Authorization\\
+        sid                       & Session ID\\
+        vot                       & Vector of Trust value\\
+        vtm                       & Vector of Trust trustmark URL\\
+        attest                    & Attestation level as defined in SHAKEN framework\\
+        origid                    & Originating Identifier as defined in SHAKEN framework\\
+        act                       & Actor\\
+        scope                     & Scope Values\\
+        client\_id                 & Client Identifier Authorized Actor - the party\\
+        may\_act                   & that is authorized to become the actor\\
+        jcard                     & jCard data\\
+        at\_use\_nbr                & Number of API requests for which the access token can be used\\
+        div                       & Diverted Target of a Call\\
+        opt                       & Original PASSporT (in Full Form)\\
+        vc                        & Verifiable Credential as specified in the W3C Recommendation\\
+        vp                        & Verifiable Presentation as specified in the W3C Recommendation\\
+        \hline
+    \end{longtable}
+}
+
+This table comes from \url{https://www.iana.org/assignments/jwt/jwt.xhtml},
+there you could find when and by which specification each reserved field was
+introduced.
+
+\restoregeometry
+
 \section{Dissertation Acknowledgments}
 \begin{itemize}
     \item CED MaxMara
@@ -713,4 +900,3 @@ NOTE: example script in python
 
 \newpage
 \end{document}
-
