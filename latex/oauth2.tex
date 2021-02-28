@@ -61,7 +61,7 @@ This standard is a protocol that takes the name of \textbf{OAuth2}.
 
 Often confused with API
 keys\footnote{More on API keys:
-\texttt{https://en.wikipedia.org/wiki/Application\_programming\_interface\_key}}
+\url{https://en.wikipedia.org/wiki/Application\_programming\_interface\_key}}
 for their similar use and terminology, OAuth2 grants the permission to access
 user data to third party application.
 The protocol specifies that, instead of you handing them your credentials, an
@@ -301,7 +301,70 @@ OAuth2 is an extensible protocol, it was born as an authorization protocol,
     \item quick comparison with SAML
 \end{enumerate}
 \section{OAuth2: authorization code}
-\subsection{Obtain an access token}
+\begin{alltt}
+     +----------+
+     | Resource |
+     |   Owner  |
+     |          |
+     +----------+
+          ^
+          |
+         (B)
+     +----|-----+          Client Identifier      +---------------+
+     |         -+----(A)-- & Redirection URI ---->|               |
+     |  User-   |                                 | Authorization |
+     |  Agent  -+----(B)-- User authenticates --->|     Server    |
+     |          |                                 |               |
+     |         -+----(C)-- Authorization Code ---<|               |
+     +-|----|---+                                 +---------------+
+       |    |                                         ^      v
+      (A)  (C)                                        |      |
+       |    |                                         |      |
+       ^    v                                         |      |
+     +---------+                                      |      |
+     |         |>---(D)-- Authorization Code ---------'      |
+     |  Client |          & Redirection URI                  |
+     |         |                                             |
+     |         |<---(E)----- Access Token -------------------'
+     +---------+       (w/ Optional Refresh Token)
+
+ \end{alltt}
+Note: The lines illustrating steps (A), (B), and (C) are broken into
+two parts as they pass through the user-agent.
+
+
+The authorization code grant type is used to obtain both access and refresh
+tokens, and is optimized for confidential clients.
+Since it is a redirection-based flow, the clients must be capable of interacting
+with the resource owner's user-agent, and capable of receiving incoming requests
+(via redirection) from the authorization server.
+
+\subsection{Steps required to obtain the access token}
+% NOTE: re-read and explain in more human words this
+\begin{enumerate}
+    \item[(A)] the client indicates the flow by directing the resource owner's
+        user-agent to the authorization endpoint, including its client
+        identifier, requested scope, state and a redirection URI to which the
+        authorization server will send the user agent back once access is
+        granted (or denied).
+    \item[(B)] the authorization server authenticates the resource owner (via
+        user agent) and establishes whether the resource owner grants or denies
+        the client's access request.
+    \item[(C)] Assuming the resource owner grants access, the authorization
+        server redirects the user-agent back to the client using the redirection
+        URI provided earlier.
+    \item[(D)] The client requests an access token from the authorization
+        server's token endpoint by including the authorization code
+        received in the previous step.  When making the request, the
+        client authenticates with the authorization server.  The client
+        includes the redirection URI used to obtain the authorization
+        code for verification.
+    \item[(E)] the authorization server authenticates the client, validates the
+        authorization code, and ensures that the redirection URI received
+        matches the URI used to redirect the client in step (C). If valid, the
+        authorization server responds back with an access token and,
+        optionally a refresh token.
+\end{enumerate}
 
 \begin{enumerate}
     \item
@@ -517,10 +580,12 @@ access token.
 
 NOTE: TL.DR. just add 'openid' in the list of scopes
 
-OAuth2.0 is designed only for authorization and granting access to data and
-feature from one application to another.
-OAuth2 is like giving an application a key, that doesn't tell anything about who
-you are.
+OAuth2.0 is designed only for granting authorization to third party applications
+to the resource server. Nothing more and nothing less.
+
+To make an example, OAuth2 is like giving an application a key, that does not
+tell anything about the owner's identity.
+
 OpenID Connect (OIDC) is a thin layer that sits on top of OAuth2.0 that add functionality around
 login and profile information about the person who is logged in.
 Instead of a key, OpenID is like giving a person a badge. A badge not only gives
@@ -556,49 +621,63 @@ Fields contained in the JWT are called claims.
 There is also a standard way that a client can ask additional information from the
 authorization server, such as the email address.
 
-NOTE: add OpenID to the list of scopes.
+The full list of OpenID Connect specification reserved scopes is reported at
+page \pageref{openid}.
 
-NOTE: with the OpenID specification, the \texttt{/userinfo} endpoint is created.
-It's used to get more informations about the user contained in the JWT.
+\subsection{the /userinfo endpoint}
+OpenID specification defines a protected OAuth2 endpoint, that returns
+additional informations (claims) about the authenticated end-user.
+To obtain the requested claims, the client makes a request to the userinfo
+endpoint, using an access token obtained through OpenID Connect
+Authentication.
+
+The response claims are normally represented by a JSON objet that contains a
+collection of name and value pair of each claim.
+
+If the UserInfo response is signed and/or encrypted, then the claims are
+returned in a JWT and the content-type MUST be \texttt{application/jwt}.
+The response may also be encrypted without being signed.
+
 
 %==============================================================================
 \section{JWT}
 \label{jwt}
-\subsection{JWT}
-JWT is an internet standard for creating JSON based access tokens. It asserts
-some number of claims in the token itself, so that authentication protocols that
-uses it can be considered completely stateless.
+JWT (JSON Web Token) is an internet standard for creating JSON based access tokens.
+It asserts some number of claims in the token itself, so that authentication
+protocols that uses it are completely stateless.
+In other words, if i give a JWT to a completely different service it is
+completely able to verify and authenticate the request, without having to access
+the database.
 
-In other words, if i give a JWT to a completely different service
-it is completely able to verify and authenticate the request, even without
-database access.
-
-The key concept behind JWT is encryption, it could be symmetric or asymmetric.
-With that said, the latter one is preferred, for reasons that i will explain
-later.
+The key concept that holds together the JWT standard is encryption, that could
+be either symmetric or asymmetric.
 
 In a zero thrust architecture, it is really rare that symmetric encryption is
-used to create JWTs. If just one server is hacked, then all the encryption in
-use is invalidated, and unusable.
+used: if just one server that has access to the key is compromised, then all the
+JWTs created with that key are no longer to be trusted, and must be invalidated.
 
+For this reason the asymmetric encryption is usually preferred since only one
+server has access to the signing key.
+
+The public key is usually exposed from the same server via endpoint (see page
+\pageref{jwks}).
+
+\subsection{JWT Structure}
 JWT are composed by three  parts:
 
 \begin{enumerate}
-    \item Header: contains expiration, when it was created, encryption
-        algorithm, etc.
-    \item Data: data contained in the JWT.
-    \item Signature: encrypted checksum obtained combining header and data.
+    \item Header: a JSON object, containing information about the JWT structure
+        (signing key id, JWT type, algorithm, etc.)
+    \item Data: the content of the JWT itself
+    \item Signature: encrypted checksum of the two sections (header and data).
 \end{enumerate}
 
-The data cannot be deliberately modified, thanks to the signature, the server
-could easily verify if the token is valid or it has been altered.
-
-JWT created with an asymmetric key, can be generated by one server and verified
-by everyone thanks to public keys.
-
-NOTE: the key concept behind JWTs is that you can trust them without accessing
-the database. Since they are cryptographically signed, just by reading the
-public key you can be sure that it was forged by the authentication provider.
+Since the first two sections are cryptographically signed, they cannot be
+deliberately modified by the end user, and a third party client could easily
+verify the token integrity using the public key.
+\\
+Therefore JWT created with an asymmetric key, can be generated by one server and
+verified by everyone thanks to public keys.
 
 \subsubsection{JWT head}
 Example of JWT head:
@@ -668,7 +747,13 @@ This is one of the safest methods, but it's not viable as we need to distribute 
 trusted users.
 
 \subsubsection{Share the public key}
-NOTE: \texttt{.well-known/jwks.json}
+\label{jwks}
+% TODO: edit this better
+To avoid copy-pasting public keys to one service to another, usually public keys
+are exposed in an endpoint called \texttt{.wellknown/jwks.json}. For example, if
+the authorization server host is \url{http://localhost:8080}, the public key
+will be exposed at \url{http://localhost:8080/.well-known/jwks.json}.
+
 \begin{lstlisting}
 {
     "keys": [
@@ -684,8 +769,18 @@ cryptographic key.
 
 The specification \footnote{https://tools.ietf.org/html/rfc7517}
 
-\subsection{JWS \& JWE}
-NOTE: Token could be signed, encrypted or both.
+\subsection{JWE}
+JWE (JSON Web Encryption) differences from the previous JWS (JSON Web
+Signature), defines a way to encrypt your claims, so that only the intended
+receiver could read the information presented by the token.
+
+The main advantage that it has over JWS is the protection against MITM attacks,
+since the attacker cannot see the information contained in the token unless he
+has access to the encryption key.
+
+A detailed explanation of the standard could be found
+\href{https://tools.ietf.org/html/draft-ietf-jose-json-web-signature-41}{here}.
+% TODO: Add specification and explain this paragraph better
 
 
 \section{Access tokens}
@@ -756,7 +851,12 @@ eyJhbGciOiAiUlMyNTYiLCAia2lkIjogIjEiLCAidHlwIjogIkpXVCJ9.
 {"alg": "RS256", "kid": "1", "typ": "JWT"}
 \end{lstlisting}
 
-NOTE: Add link to jwks.json
+In the header is contained the information that explains how the JWT has been
+created: the algorithm (\texttt{alg}), the type and the id of the encryption key
+used (\texttt{kid}).
+\\
+If the JWT is of type JWS (it has a signature), usually the \texttt{kid} refers
+to a public key, expsed in the jwks endpoint (more at page \pageref{jwks}).
 
 \subsubsection{Body}
 \begin{lstlisting}
@@ -774,7 +874,6 @@ UuMDM4MTg4N30.
 }
 \end{lstlisting}
 
-NOTE: Describe fields introduced by OpenID
 OpenID specification describes these extra fields, required in the JWT body:
 \begin{itemize}
     \item \texttt{sub}: subscriber identity, an unique identifier of the user in
@@ -785,14 +884,9 @@ OpenID specification describes these extra fields, required in the JWT body:
     \item \texttt{auths} is an example of custom field inserted from the authorization
         provider
 \end{itemize}
-Other claims not included in this JWT are:
-All JWT reserved claims are listed here
-\begin{itemize}
-    \item \texttt{nbf} not before
-    \item \texttt{aud} Audience
-    \item \texttt{jti} JWT identity, unique identifier of this jwt
-    \item \texttt{emial} subscriber preferred email address
-\end{itemize}
+
+The full list of OpenID reserved claims could be found at page \pageref{openid}.
+
 \subsubsection{Signature}
 \begin{lstlisting}
 slCAkhLRu9w-rBhmLUh487UPrqkJF1cBpXE5LyWRR1KH1XcPA_QW_uen06p7eHI
@@ -980,6 +1074,9 @@ introduced.
     \\
     \url{https://developer.okta.com/blog/2018/06/29/what-is-the-oauth2-password-grant}
 
+    \bibitem{tools.ietf.org}
+    The OAuth2 standard (tools.ietf.org)
+    \url{https://tools.ietf.org/html/rfc6749#section-2.3.1}
 \end{thebibliography}
 
 \newpage

@@ -2,7 +2,7 @@
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesClass{style}[30/03/2020 v0.1 Custom class]
 
-\def\@@ptsize{12pt}
+\def\@@ptsize{11pt}
 \DeclareOption{10pt}{\def\@@ptsize{10pt}}
 \DeclareOption{11pt}{\def\@@ptsize{11pt}}
 \DeclareOption{12pt}{\def\@@ptsize{12pt}}
@@ -11,7 +11,7 @@
 
 \LoadClass[a4paper,\@@ptsize]{article}
 \RequirePackage{xcolor}
-\RequirePackage[margin=1.2in]{geometry}
+\RequirePackage[margin=1in, top=.8in]{geometry}
 \RequirePackage{amsmath}
 \RequirePackage{subfiles}
 \RequirePackage[noindentafter]{titlesec}
