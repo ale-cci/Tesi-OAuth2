@@ -10,7 +10,7 @@
 \usepackage{hyperref}
 \setcounter{tocdepth}{2} % Show only sections in table of contents
 
-\title{OAuth2}
+\title{OAuth2 \& OpenID}
 
 \def\relator{Poggi Agostino}
 
@@ -44,6 +44,10 @@ and JWT.
 This paper is suited for people who are new to authentication protocols, want to
 integrate OAuth2 with their web server, or want to know in depth how JWT and
 OpenID works.
+\subsection{Examples}
+Some code examples will be included alongside the explanation, written in python.
+Why python? You may ask, because i think it is arguably one of the most readable
+and concise languages out there.
 
 \section{Introduction}
 In the early days everything was easier, if you wanted to grant access to your
@@ -135,16 +139,128 @@ Later we could see that it could be extended and used as an authentication
 provider with OpenID connect (page \pageref{openid}).
 
 \section{OAuth2 Protocol}
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=.5\textwidth]{authorization-code.png}
-\end{figure}
+OAuth2 is an authentication framework, which stands for Open Authentication.
+It enables applications to obtain limited access to an HTTP service.
 
-Enough with the chitchat, here comes the fun part, the protocol specifications,
-for practical example i will use python, for the simple reason that arguably it
-is one of the most readable programming languages out there.
+It works by delegating the authentication to an external server, which provides
+cryptographically signed tokens, containing the authorization granted by the
+user.
 
-Above you could see the flow of the OAuth2 protocol.
+Since the token is signed or encrypted, the resource server, can blindly trust
+the forged tokens, and checks if the required authorizations are contained in
+the token.
+
+
+\subsection{Abstract Protocol flow}
+\begin{alltt}
+     +--------+                               +---------------+
+     |        |--(A)- Authorization Request ->|   Resource    |
+     |        |                               |     Owner     |
+     |        |<-(B)-- Authorization Grant ---|               |
+     |        |                               +---------------+
+     |        |
+     |        |                               +---------------+
+     |        |--(C)-- Authorization Grant -->| Authorization |
+     | Client |                               |     Server    |
+     |        |<-(D)----- Access Token -------|               |
+     |        |                               +---------------+
+     |        |
+     |        |                               +---------------+
+     |        |--(E)----- Access Token ------>|    Resource   |
+     |        |                               |     Server    |
+     |        |<-(F)--- Protected Resource ---|               |
+     +--------+                               +---------------+
+ \end{alltt}
+Above you could see the main flow of the OAuth2 protocol, the final objective is
+always to obtain an access token, which could be used to perform authorized
+requests.
+
+
+ \begin{itemize}
+     \item[(A)] The client request an authorization from the resource owner.
+         The authorization request is performed directly to the resource owner,
+         or preferably via the authorization server server, as intermediary.
+     \item[(B)] The client receives an authorization grant, which is a
+         credential representing the resource owner's authorization, expressed
+         using one of four grant types defined in the specification or using an
+         extension grant type.
+     \item[(C)] The client requests the access token, by authenticating with the
+         authorization server and presenting the received authorization grant.
+     \item[(D)] The authorization server authenticates the client and validates
+         the received authorization grant, if valid the access token is
+         returned.
+     \item[(E)] the client requests the protected resource from the resource
+         server providing the access token.
+     \item[(F)] the resource server validates the access token. If valid the
+         requested resource is provided at the client.
+ \end{itemize}
+
+\subsection{Different grant type}
+The specification supports different ways of obtaining the access token, called
+\textbf{grant types}.
+\begin{enumerate}
+    \item access code
+    \item implicit
+    \item client credentials
+    \item client password
+\end{enumerate}
+
+\subsection{Access Token}
+\subsection{Refresh token}
+\begin{alltt}
+  +--------+                                           +---------------+
+  |        |--(A)------- Authorization Grant --------->|               |
+  |        |                                           |               |
+  |        |<-(B)----------- Access Token -------------|               |
+  |        |               & Refresh Token             |               |
+  |        |                                           |               |
+  |        |                            +----------+   |               |
+  |        |--(C)---- Access Token ---->|          |   |               |
+  |        |                            |          |   |               |
+  |        |<-(D)- Protected Resource --| Resource |   | Authorization |
+  | Client |                            |  Server  |   |     Server    |
+  |        |--(E)---- Access Token ---->|          |   |               |
+  |        |                            |          |   |               |
+  |        |<-(F)- Invalid Token Error -|          |   |               |
+  |        |                            +----------+   |               |
+  |        |                                           |               |
+  |        |--(G)----------- Refresh Token ----------->|               |
+  |        |                                           |               |
+  |        |<-(H)----------- Access Token -------------|               |
+  +--------+           & Optional Refresh Token        +---------------+
+\end{alltt}
+
+Refresh tokens are credentials used to obtain access tokens. Refresh tokens are
+issued to the client by the authorization server and are used to obtain a new
+access token when the current access token becomes invalid or expires, or to
+obtain an additional access token identical or narrower scope.
+
+Issuing a refresh token is completely optional, at the desecration of the
+authorization server.
+If the authorization server issues an access token, it is included with the
+access token (Step B).
+
+The value of the refresh token is usually a string opaque to the client, unlike
+access token, it is only intended to be used by the authorization server,
+therefore this kind of token is not sent to the resource server when accessing
+protected resources.
+
+
+The protocol is heavily dependent on HTTPS and HTTP redirects.
+
+Before initiating the protocol, the client registers with the authorization
+server.
+The means through which the client registers are beyond the scope of the
+specification, but typically involve end-user interaction with an HTML
+registration form.
+
+In the client registration, it is required to specify:
+\begin{itemize}
+    \item the client type
+    \item it client redirection(s)
+    \item include any other information required by the authorization server,
+        for example the application name, logo website, description and others.
+\end{itemize}
 
 It starts with a specifically crafted URL, when the client needs the access to
 the protected resource, it redirects the user to that URL.
@@ -210,44 +326,6 @@ will send you there). Response type is for saying that you want a code back, and
 scope is the actual data that you want to access.
 
 
-\subsection{Main entities in authorization protocols}
-
-Today we have agreed to standards, to allow one service to securely allow access
-to another.
-The first one is OAuth2 (Open Authorization 2.0), a security standard where you give an application
-permissions to access your data in another application, instead of giving them
-username and password, it gives them a key that allows it to access data or do
-things on your behalf, on another application.
-
-The steps to grant permissions, or consents are often referred as authorizations
-or delegated authorizations.
-
-Once more, you can take back that key whenever you wish.
-
-You have discover an awesome website that tells you a terrible pun every day,
-and you want to share it between all your contacts on your mailing list (why
-not).
-But writing an email to every person in your contact list every day sounds like
-a lot of work.
-
-Good thing terrible pun of the day has a feature to email all your friends.
-1st you go to your email provider, then you are redirect to your email service.
-Firstly it checks if you are logged in, if you are not, it asks you to
-authenticate and then it opens a session where it presents the question: "do you
-want to give the website access to your contacts?"
-
-Assuming you have not changed your mind you click allow, now you are redirected
-to the website and the application can now access your contacts.
-
-Visible and invisible steps to grant consent.
-\subsection{Terminology}
-Before going in the depths of OAuth2 let's map some terminology
-(OAuth2 protocol explained)
-
-Client does not use the access token, it's gibberish.
-Different ways to achieve the goal, here are a few of them:
-
-
 \subsubsection{OAuth2}
 Provide an access token at each client, which they could use to validate their
 identity at each API request.  This token could be either valid, expired,
@@ -275,9 +353,14 @@ The OAuth2 protocol provides a secure and standardized way for creating and exch
 
 
 %==============================================================================
-\section{OAuth2 overview}
-An OAuth2 grant type refers a way of how an application obtains the access
-token.
+\subsection{Different types of grant}
+% OAuth2 is an authorization framework, that enables application to obtain limited
+% access to user accounts on an HTTP service.
+% It works by delegating the user authentication to the service that hosts the
+% user account, and authorizing third-party application to access the user accout.
+%
+% An OAuth2 grant type refers a way of how an application obtains the access
+% token.
 
 The grant type described in the specification are:
 \begin{itemize}
@@ -287,14 +370,9 @@ The grant type described in the specification are:
     \item password
 \end{itemize}
 
-The OAuth 2.0 Password Grant Type is a way to get an access token given a
-username and password. It’s typically used only by a service’s own mobile apps
-and is not usually made available to third party developers.
-
 OAuth2 was conceptualized only as an authorization protocol, supporting multiple
 types of flows for obtaining the access token.
 
-OAuth2 is an extensible protocol, it was born as an authorization protocol,
 \begin{enumerate}
     \item different grant type
     \item born as an authorization protocol
@@ -342,23 +420,19 @@ with the resource owner's user-agent, and capable of receiving incoming requests
 \subsection{Steps required to obtain the access token}
 % NOTE: re-read and explain in more human words this
 \begin{enumerate}
-    \item[(A)] the client indicates the flow by directing the resource owner's
-        user-agent to the authorization endpoint, including its client
-        identifier, requested scope, state and a redirection URI to which the
-        authorization server will send the user agent back once access is
-        granted (or denied).
+    \item[(A)] the client redirects the resource owner's user agent to the
+        authorization endpoint, and provides the client identifier, request
+        scope state and redirection URI, to which the authorization server will
+        send the user agent back, once the access is granted (or denied).
     \item[(B)] the authorization server authenticates the resource owner (via
-        user agent) and establishes whether the resource owner grants or denies
-        the client's access request.
-    \item[(C)] Assuming the resource owner grants access, the authorization
+        user agent) and asks the resource owner to allow or deny, the client's
+        access request.
+    \item[(C)] Assuming the resource's access is granted, the authorization
         server redirects the user-agent back to the client using the redirection
         URI provided earlier.
-    \item[(D)] The client requests an access token from the authorization
-        server's token endpoint by including the authorization code
-        received in the previous step.  When making the request, the
-        client authenticates with the authorization server.  The client
-        includes the redirection URI used to obtain the authorization
-        code for verification.
+    \item[(D)] The client exchanges the received authorization code, client id,
+        client secret and once again the redirection uri for the authorization code.
+
     \item[(E)] the authorization server authenticates the client, validates the
         authorization code, and ensures that the redirection URI received
         matches the URI used to redirect the client in step (C). If valid, the
@@ -577,9 +651,6 @@ access token.
 
 \section{OpenID connect}
 \label{openid}
-
-NOTE: TL.DR. just add 'openid' in the list of scopes
-
 OAuth2.0 is designed only for granting authorization to third party applications
 to the resource server. Nothing more and nothing less.
 
@@ -590,6 +661,9 @@ OpenID Connect (OIDC) is a thin layer that sits on top of OAuth2.0 that add func
 login and profile information about the person who is logged in.
 Instead of a key, OpenID is like giving a person a badge. A badge not only gives
 permission but also some basic information of who your are.
+
+The OpenID requests in the OAuth2 protocol are easily recognizable by the
+'openid' included in the scope list.
 
 OIDC establish a client to perform a login session.
 When an authorization server supports OIDC it referred as an identity provider,
@@ -748,26 +822,50 @@ trusted users.
 
 \subsubsection{Share the public key}
 \label{jwks}
-% TODO: edit this better
-To avoid copy-pasting public keys to one service to another, usually public keys
-are exposed in an endpoint called \texttt{.wellknown/jwks.json}. For example, if
-the authorization server host is \url{http://localhost:8080}, the public key
-will be exposed at \url{http://localhost:8080/.well-known/jwks.json}.
+To avoid copy-pasting public keys between services, usually the authentication
+server exposes them in the \texttt{.well-known/jwks.json} endpoint, using the
+\href{https://tools.ietf.org/html/rfc7517#section-4}{JWK Format}.
 
-\begin{lstlisting}
+Here is an example:
+
+\begin{lstlisting}[language=bash]
+~: curl -s http://localhost:4000/oauth/.well-known/jwks.json \
+        | python -m json.tool
 {
     "keys": [
-        { "kid": "",
-          "n": "TODO",
-          "e": "TODO"}
+        {
+            "alg": "RS256",
+            "e": "AQAB",
+            "kid": "1",
+            "kty": "RSA",
+            "n": "0wMtv3UjBSWh31xs5ogySIof_HxWcdetqnkJYzsdYO_niyhgsO...",
+            "use": "sig"
+        }
     ]
 }
 \end{lstlisting}
+With a quick look to the json returned by the curl response, it is obvious that
+more than one key could be returned using the adopted formalism.
+
+Each entry in the \texttt{code} array is required to have the keys:
+\begin{itemize}
+    \item \texttt{kty} : (key type) identifies the cryptographic family algoritm
+        used with with the key. Possible values could be RSA or EC.
+        The value is a case sensitive string, and MUST be present in a JWK.
+    \item \texttt{use} : (public key use), identifies the intended use of the
+        public key. The use is employed to indicate whether a public key is used
+        for encrypting data or verifying the signature. Values defined by the
+        specification are: \texttt{sig} or \texttt{enc}.
+        The use is is optional, unless the application requires it.
+    \item \texttt{alg} :
+    \item \texttt{e} and \texttt{n}
+    \item \texttt{kid} : (key id)
+\end{itemize}
+
+For more informations about the
 
 JSON Web Keys are javascript object notation data structures that represents a
 cryptographic key.
-
-The specification \footnote{https://tools.ietf.org/html/rfc7517}
 
 \subsection{JWE}
 JWE (JSON Web Encryption) differences from the previous JWS (JSON Web
@@ -934,9 +1032,6 @@ TODO: Access token in openid example
 \section{Protocol Vulnerabilities}
 \subsection{PKCE (Proof Key for Code Exchange)}
 \label{pkce}
-NOTE: with the implicit flow, you could just read the access token from the GET
-url, and perform requests as an authenticated user.
-
 Public applications, such as desktop and mobile apps, are unable to securely
 store credentials, in our case, the client secret.
 
@@ -949,6 +1044,10 @@ This particular sequence of events opens up a vulnerability:
 when the access token is returned by the authorization response, malicious apps
 running alongside our OAuth2 client are able to read it, and therefore use it as
 our application would.
+
+For example, if your client is running in a browser, let's say firefox just to
+pick one, any plugin you have installed has access to the current url, and
+therefore to the access\_token.
 
 PKCE is a superset feature for OAuth2, idealized for preventing this kind of
 attack, called "authorization code interception".
@@ -969,8 +1068,6 @@ grant type use PKCE.
 This feature blocks "easy" oauth2 attacks, that could be performed simply by
 reading the access token from the GET request.
 
-\subsubsection{Example script}
-NOTE: example script in python
 
 \section{OpenID Reserved claims}
 {
