@@ -1,0 +1,237 @@
+
+\section{OAuth2 Protocol}
+OAuth2 is an authentication framework, which stands for Open Authentication.
+It enables applications to obtain limited access to an HTTP service.
+
+It works by delegating the authentication to an external server, which provides
+cryptographically signed tokens, containing the authorization granted by the
+user.
+
+Since the token is signed or encrypted, the resource server, can blindly trust
+the forged tokens, and checks if the required authorizations are contained in
+the token.
+
+
+\subsection{Abstract Protocol flow}
+\begin{alltt}
+     +--------+                               +---------------+
+     |        |--(A)- Authorization Request ->|   Resource    |
+     |        |                               |     Owner     |
+     |        |<-(B)-- Authorization Grant ---|               |
+     |        |                               +---------------+
+     |        |
+     |        |                               +---------------+
+     |        |--(C)-- Authorization Grant -->| Authorization |
+     | Client |                               |     Server    |
+     |        |<-(D)----- Access Token -------|               |
+     |        |                               +---------------+
+     |        |
+     |        |                               +---------------+
+     |        |--(E)----- Access Token ------>|    Resource   |
+     |        |                               |     Server    |
+     |        |<-(F)--- Protected Resource ---|               |
+     +--------+                               +---------------+
+ \end{alltt}
+Above you could see the main flow of the OAuth2 protocol, the final objective is
+always to obtain an access token, which could be used to perform authorized
+requests.
+
+
+ \begin{itemize}
+     \item[(A)] The client request an authorization from the resource owner.
+         The authorization request is performed directly to the resource owner,
+         or preferably via the authorization server server, as intermediary.
+     \item[(B)] The client receives an authorization grant, which is a
+         credential representing the resource owner's authorization, expressed
+         using one of four grant types defined in the specification or using an
+         extension grant type.
+     \item[(C)] The client requests the access token, by authenticating with the
+         authorization server and presenting the received authorization grant.
+     \item[(D)] The authorization server authenticates the client and validates
+         the received authorization grant, if valid the access token is
+         returned.
+     \item[(E)] the client requests the protected resource from the resource
+         server providing the access token.
+     \item[(F)] the resource server validates the access token. If valid the
+         requested resource is provided at the client.
+ \end{itemize}
+
+\subsection{Different grants for different clients}
+% TODO: expose better
+The specification differs between public and confidential client.
+
+\subsection{Different grant type}
+The specification supports different ways of obtaining the access token, called
+\textbf{grant types}.
+\begin{enumerate}
+    \item access code
+    \item implicit
+    \item client credentials
+    \item client password
+\end{enumerate}
+
+\subsection{Access Token}
+Access tokens are in any shape or form, credentials, that client application use
+to access resources protected by resource servers.
+\\
+They take the form of a string, that usually (but not always) the client cannot
+interpret.
+
+Each access token is unique, and resource servers could verify the validity and
+look up the scopes, granted by the resource owner to the access token.
+
+The OAuth2 specification does not constrain the access token format, saying
+that, quote: \\
+\textit{``Access tokens can have different formats, structures, and methods of
+utilization''}.
+
+As we will see later, the OpenID Connect framework takes advantage of this
+freedom, by imposing a strict token format (see JWT at page \pageref{jwt}).
+
+\subsection{Refresh token}
+\begin{alltt}
+  +--------+                                           +---------------+
+  |        |--(A)------- Authorization Grant --------->|               |
+  |        |                                           |               |
+  |        |<-(B)----------- Access Token -------------|               |
+  |        |               & Refresh Token             |               |
+  |        |                                           |               |
+  |        |                            +----------+   |               |
+  |        |--(C)---- Access Token ---->|          |   |               |
+  |        |                            |          |   |               |
+  |        |<-(D)- Protected Resource --| Resource |   | Authorization |
+  | Client |                            |  Server  |   |     Server    |
+  |        |--(E)---- Access Token ---->|          |   |               |
+  |        |                            |          |   |               |
+  |        |<-(F)- Invalid Token Error -|          |   |               |
+  |        |                            +----------+   |               |
+  |        |                                           |               |
+  |        |--(G)----------- Refresh Token ----------->|               |
+  |        |                                           |               |
+  |        |<-(H)----------- Access Token -------------|               |
+  +--------+           & Optional Refresh Token        +---------------+
+\end{alltt}
+
+Refresh tokens are credentials used to obtain access tokens. Refresh tokens are
+issued to the client by the authorization server and are used to obtain a new
+access token when the current access token becomes invalid or expires, or to
+obtain an additional access token identical or narrower scope.
+
+Issuing a refresh token is completely optional, at the desecration of the
+authorization server.
+If the authorization server issues an access token, it is included with the
+access token (Step B).
+
+The value of the refresh token is usually a string opaque to the client, unlike
+access token, it is only intended to be used by the authorization server,
+therefore this kind of token is not sent to the resource server when accessing
+protected resources.
+
+
+The protocol is heavily dependent on HTTPS and HTTP redirects.
+
+Before initiating the protocol, the client registers with the authorization
+server.
+The means through which the client registers are beyond the scope of the
+specification, but typically involve end-user interaction with an HTML
+registration form.
+
+In the client registration, it is required to specify:
+\begin{itemize}
+    \item the client type
+    \item it client redirection(s)
+    \item include any other information required by the authorization server,
+        for example the application name, logo website, description and others.
+\end{itemize}
+
+It starts with a specifically crafted URL, when the client needs the access to
+the protected resource, it redirects the user to that URL.
+
+The URL contains a query string
+It starts with a specifically crafted redirect URL, that the clients
+redirects the user to.
+The URL points to the authorization's server, and it contains parameters in the
+form of a query string. Here is an example:
+
+\begin{lstlisting}
+import urllib.request
+
+callback_url = urllib.request.quote('http://localhost:8080')
+client_id = 'YOUR-CLIENT-ID-HERE'
+
+querystring = urlencode({
+    'redirect_uri': callback_url,
+    'client_id':    client_id,
+    'grant_type':   'code'
+})
+
+redirect_to = f'https://www.googleapis.com?{querystring}'
+\end{lstlisting}
+
+
+Authorization and resource servers could be a third party service trusted by the
+resource server.
+
+\begin{itemize}
+    \item  redirect uri, where the client will be redirect after authorization.
+    \item  response type: type of the information the client expects to receive
+        (most common code, (authorization code))
+    \item  scope: permission that the client wants
+    \item  consent: authorization server takes the scopes and verifies whether or not
+        it want to give client permissions
+    \item  client\_id: used to identify the client with the authorization server
+    \item  client\_secret: secret password that only client and authorization server knows
+    \item  \texttt{auth\_code}: short lived code that server sends to the client
+    \item access\_token: key the client will use to communicate with the resource server.
+\end{itemize}
+
+\subsection{The protocol}
+It all starts with a specifically crafted URL:
+\begin{lstlisting}
+https://www.googleapis.com
+    ?redirect_uri=http://localhost:3030
+    &client_id=
+    &scope=email read-contacts
+    &grant=code
+\end{lstlisting}
+
+In the login prompt, users sees the assertion that will be inserted in the
+OAuth2 JWT.
+
+OAuth2 flow is always between website A and B, the user has only to consent the
+OAuth2 request.
+
+It all starts with a specially crafted URL, besides the host, it includes extra
+information that says what the host should do, they include the registered
+application, the redirect uri (once discord is done the authorization the host
+will send you there). Response type is for saying that you want a code back, and
+scope is the actual data that you want to access.
+
+
+\subsubsection{OAuth2}
+Provide an access token at each client, which they could use to validate their
+identity at each API request.  This token could be either valid, expired,
+revoked or invalid.
+
+\subsubsection{Small digression on API Key}
+\begin{lstlisting}[language=bash]
+$ curl --header 'Authorization: Apikey 1234567890abcdef'
+\end{lstlisting}
+API keys make sense when the users of an API are only developers.
+
+
+\begin{lstlisting}[language=bash]
+$ curl -v --header "Authorization: Bearer $ACCESS_TOKEN" \
+    http://localhost:8080/api
+
+> GET / HTTP/1.1
+> Host: localhost:8080
+> User-Agent: curl/7.72.0
+> Accept: */*
+> Authorization: Bearer ...
+\end{lstlisting}
+
+The OAuth2 protocol provides a secure and standardized way for creating and exchanging those token between client and server.
+
+
+%==============================================================================

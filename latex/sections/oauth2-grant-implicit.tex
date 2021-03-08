@@ -1,0 +1,83 @@
+\section{OAuth2: implicit flow}
+Since public clients could not store a "client secret" to exchange for an
+authorization code, the protocol is slightly altered.
+Instead of returning the authorization code, the access token is returned
+directly in the GET parameters of the redirect.
+
+Therefore the steps required to perform the authorization are reduced to 3:
+\begin{enumerate}
+    \item Redirect to the authorization provider
+    \item User performs the authentication and approves the requested
+        permissions
+    \item The access token is returned to the third party client.
+\end{enumerate}
+
+\begin{alltt}
+     +----------+
+     | Resource |
+     |  Owner   |
+     |          |
+     +----------+
+          ^
+          |
+         (B)
+     +----|-----+          Client Identifier     +---------------+
+     |         -+----(A)-- & Redirection URI --->|               |
+     |  User-   |                                | Authorization |
+     |  Agent  -|----(B)-- User authenticates -->|     Server    |
+     |          |                                |               |
+     |          |<---(C)--- Redirection URI ----<|               |
+     |          |          with Access Token     +---------------+
+     |          |            in Fragment
+     |          |                                +---------------+
+     |          |----(D)--- Redirection URI ---->|   Web-Hosted  |
+     |          |          without Fragment      |     Client    |
+     |          |                                |    Resource   |
+     |     (F)  |<---(E)------- Script ---------<|               |
+     |          |                                +---------------+
+     +-|--------+
+       |    |
+      (A)  (G) Access Token
+       |    |
+       ^    v
+     +---------+
+     |         |
+     |  Client |
+     |         |
+     +---------+
+\end{alltt}
+
+
+This protocol is a bit "faster" than the other one (if you want to define it
+like that), because it skips the intermediate step to exchange code with access
+token.
+
+But it is clear that if an external application (like a chrome extension) reads
+your "\texttt{window.location}", you are basically done, and the innocent chrome
+extension could perform OAuth2 requests with your account, without you having to
+give it the permissions!
+
+A solution to this problem is discussed later in this dissertation at the PKCE
+section (pg. \pageref{pkce})
+
+It is advised to remove the access token from the URL once you have read it, to
+minimize the possibility to leak it.
+
+\subsection{Two channel communications: trusted and insecure}
+There are no perfectly secured channels in the real world, but there are at
+best, only ways to make a less secure channel more secure.
+
+In the standard flow of the OAuth2 protocol (grant code), two channels are
+involved:
+\begin{itemize}
+    \item a front-end channel, used for redirect and a first exchange of client
+        id with an authorization code
+    \item a back-end channel, used for exchanging the code received from the
+        less trusted channel with the authorization provider
+\end{itemize}
+
+The "back-end channel" takes the name of "trusted channel". On the other hand,
+the fronted takes the names of "insecure channels", because it's easily tampered
+and overheard.
+
+%==============================================================================

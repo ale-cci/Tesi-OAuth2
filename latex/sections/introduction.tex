@@ -1,0 +1,97 @@
+\section{Introduction}
+Back when the first API services were invented, everything was easier.
+\\
+If you wanted to grant access to your private data to a third party application,
+the sole thing you had to do was provide it your username and password, and
+presto!
+The application could freely access your account without any restrictions!
+
+But things have changed, now (and even back then) there is no guarantee that an
+application will keep your credentials all safe and sound, they could store them
+in plain text, or even worse use them for malicious purposes, by accessing more
+informations than the bare necessities.
+
+To prevent that everyone finds a different solution to the same problem, we have
+agreed to web-standards, to securely allow third party applications to access
+protected resources.
+\\
+The standard protocol discussed in this paper takes the name of \textbf{OAuth2}.
+
+Often confused with API
+keys\footnote{More on API keys:
+\url{https://en.wikipedia.org/wiki/Application\_programming\_interface\_key}}
+for their similar use and terminology, OAuth2 grants the permission to access
+user data to third party application.
+The protocol specifies that, instead of you handing them your credentials, an
+authentication server forges a key (commonly called \textbf{access token}) that
+will be used by clients to perform requests to the user data.
+
+It is worth noting that this is not the only protocol used by the industry (see
+SAML\footnote{More on SAML: \url{https://en.wikipedia.org/wiki/Security_Assertion_Markup_Language}}).
+
+
+\subsection{Example of OAuth2 use-case}
+
+Let's assume you go on a vacation with your friends, during that vacation you
+take a lot of pictures and videos, and your friends do it too.
+Each one of you uploads the pictures and videos he took on Google cloud, and
+you have a shared folder that weights a few Giga.
+
+At the end of the vacation you want to organize all the pictures and videos
+automatically, by adding them labels and name them all in a consistent way, for
+example using the place and the date of where the picture was created.
+
+This sounds like a lot of work to do all by hand, but thankfully you find an
+online application that does exactly what you need: by combining image
+processing and the EXIF tags of each picture or video it can automatically
+create labels and rename them. Neat! Now you can delegate all the work with that
+application.
+
+Conveniently that application has a button called "Access with Google drive"
+that when pressed opens up the Google login page and asks you if you want to
+grant access to the application.
+
+You perform the login with Google, accept the permissions and magically the
+application starts doing it's work, labeling and renaming images.
+
+% ================================================================================
+\subsection{The terminology}
+What you have just read is a typical example of the OAuth2 flow, but before deep
+diving into the implementation and specification of this protocol, let's clear
+some terminology.
+
+First and foremost the \textbf{resource owner}, or in other words the one who
+actually owns the \textbf{protected resource} or resources.
+
+\begin{itemize}
+    \item The \textbf{protected resources}, some form of private data that is
+        not publicly accessible, in the example's case the vacation's photo and
+        videos.
+    \item \textbf{resource owner}: the one who own the protected resource, in
+        the example's case you (and your friends).
+    \item \textbf{authorization server} the service that knows the resource
+        owner's identity, or in other words an application where the resource
+        owner has an account. In the example's case it's Google.
+    \item the \textbf{client} or \textbf{third party application} is the
+        applications that requires access to the private resource (photos and
+        videos), or access to perform some actions on the private resource
+        (rename and assign them some labels).
+    \item the \textbf{resource server} is the one that has access to the private
+        data, sometimes is the same as the authorization, but as we see in our
+        example, it could be different.
+        In the example's case it's Google drive \footnote{to be clear, Google
+        has two different services: one for authorization and one for Google
+        drive}.
+\end{itemize}
+
+\subsection{Authentication and Authorization}
+Authorization and authentication my sound similar to one another, but they are
+two distinct concepts, used in identity and access management:
+authentication says who you are, authorization says what actions you can
+perform.
+
+OAuth2 is only an authorization protocol, which means that it's only use is for
+granting access to protected resources to a client.
+
+Later we could see that it could be extended and used as an authentication
+provider with OpenID connect (page \pageref{openid}).

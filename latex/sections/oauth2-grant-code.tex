@@ -1,0 +1,103 @@
+\section{OAuth2: authorization code}
+\begin{alltt}
+     +----------+
+     | Resource |
+     |   Owner  |
+     |          |
+     +----------+
+          ^
+          |
+         (B)
+     +----|-----+          Client Identifier      +---------------+
+     |         -+----(A)-- & Redirection URI ---->|               |
+     |  User-   |                                 | Authorization |
+     |  Agent  -+----(B)-- User authenticates --->|     Server    |
+     |          |                                 |               |
+     |         -+----(C)-- Authorization Code ---<|               |
+     +-|----|---+                                 +---------------+
+       |    |                                         ^      v
+      (A)  (C)                                        |      |
+       |    |                                         |      |
+       ^    v                                         |      |
+     +---------+                                      |      |
+     |         |>---(D)-- Authorization Code ---------'      |
+     |  Client |          & Redirection URI                  |
+     |         |                                             |
+     |         |<---(E)----- Access Token -------------------'
+     +---------+       (w/ Optional Refresh Token)
+
+ \end{alltt}
+Note: The lines illustrating steps (A), (B), and (C) are broken into
+two parts as they pass through the user-agent.
+
+
+The authorization code grant type is used to obtain both access and refresh
+tokens, and is optimized for confidential clients.
+Since it is a redirection-based flow, the clients must be capable of interacting
+with the resource owner's user-agent, and capable of receiving incoming requests
+(via redirection) from the authorization server.
+
+\subsection{Steps required to obtain the access token}
+% NOTE: re-read and explain in more human words this
+\begin{enumerate}
+    \item[(A)] the client redirects the resource owner's user agent to the
+        authorization endpoint, and provides the client identifier, request
+        scope state and redirection URI, to which the authorization server will
+        send the user agent back, once the access is granted (or denied).
+    \item[(B)] the authorization server authenticates the resource owner (via
+        user agent) and asks the resource owner to allow or deny, the client's
+        access request.
+    \item[(C)] Assuming the resource's access is granted, the authorization
+        server redirects the user-agent back to the client using the redirection
+        URI provided earlier.
+    \item[(D)] The client exchanges the received authorization code, client id,
+        client secret and once again the redirection uri for the authorization code.
+
+    \item[(E)] the authorization server authenticates the client, validates the
+        authorization code, and ensures that the redirection URI received
+        matches the URI used to redirect the client in step (C). If valid, the
+        authorization server responds back with an access token and,
+        optionally a refresh token.
+\end{enumerate}
+
+\begin{enumerate}
+    \item
+        Redirect to the authorization provider.
+        \begin{alltt}
+    http://google.apis.com?response_type=code\&client_id...
+        \end{alltt}
+
+    \item
+        If the authorization is successful, the OAuth2 server will redirect to
+        \lstinline{redirect\_uri} passing a \lstinline{code}
+        as GET parameter. Otherwise \lstinline{error} contains the reason why the authorization was not successful.
+        \begin{alltt}
+    POST /oauth/token HTTP/1.1
+    Host: authorization-server.com
+
+    grant_type=authorization_code
+    &code=xxxxxxxxxxx
+    &redirect_uri=https://example-app.com/redirect
+    &client_id=xxxxxxxxxx
+    &client_secret=xxxxxxxxxx
+        \end{alltt}
+
+        \textit{If an authorization code is used more than once, the authorization server must deny the subsequent request.}
+
+    \item
+        The client exchanges the \lstinline{code}, called also "grant token", with the server to obtain an
+        \\
+        \lstinline{access\_token}.
+    \item The server returns the access token with additional informations, such
+        as expire date and JWT.
+    \item
+        The client uses the access token for APIs requests.
+\end{enumerate}
+
+\subsection{Revoke an access token}
+By requirements, an OAuth2 authentication server must expose an endpoint for
+revoking the validity of a particular token.
+
+In case the authentication is performed via JWT (see page \pageref{jwt})
+Something something
+

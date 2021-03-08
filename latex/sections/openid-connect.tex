@@ -1,0 +1,65 @@
+\section{OpenID connect}
+\label{openid}
+OAuth2.0 is designed only for granting authorization to third party applications
+to the resource server. Nothing more and nothing less.
+
+To make an example, OAuth2 is like giving an application a key, that does not
+tell anything about the owner's identity.
+
+OpenID Connect (OIDC) is a thin layer that sits on top of OAuth2.0 that add functionality around
+login and profile information about the person who is logged in.
+Instead of a key, OpenID is like giving a person a badge. A badge not only gives
+permission but also some basic information of who your are.
+
+The OpenID requests in the OAuth2 protocol are easily recognizable by the
+'openid' included in the scope list.
+
+OIDC establish a client to perform a login session.
+When an authorization server supports OIDC it referred as an identity provider,
+since it provides information about the resource owner back to the client.
+
+OpenID connect, enables scenarios where one login can be shared among multiple
+applications. It is also known as single sign on.
+For example an application can support single-sign-on (SSO) with social networking services (i.e.
+Facebook or Twitter) so that a user can use a login that he already has and it's
+comfortable using it.
+
+Example with ATM. ATM is the client and it communicates with the bank. The bank
+card is the token issued by the bank. Not only gives access to the ATM to your
+bank account, but holds some basic information about you, when the card expires
+and why you are.
+ATM cannot work without the infrastructure of the bank.
+
+On top of OAuth2, a specific scope of OpenID is used. The authorization server
+goes to all the steps listed before and issues the client an authorization code
+via the client's browser.
+The key difference is that the client receives both an access token and an id
+token.
+
+ID token is a specifically formatted token (JWT). Client can extract your user
+id, your email, when you logged in, when it expires, and it can tell if anyone
+has tried to tamper with the JWT.
+
+Fields contained in the JWT are called claims.
+There is also a standard way that a client can ask additional information from the
+authorization server, such as the email address.
+
+The full list of OpenID Connect specification reserved scopes is reported at
+page \pageref{openid}.
+
+\subsection{the /userinfo endpoint}
+OpenID specification defines a protected OAuth2 endpoint, that returns
+additional informations (claims) about the authenticated end-user.
+To obtain the requested claims, the client makes a request to the userinfo
+endpoint, using an access token obtained through OpenID Connect
+Authentication.
+
+The response claims are normally represented by a JSON objet that contains a
+collection of name and value pair of each claim.
+
+If the UserInfo response is signed and/or encrypted, then the claims are
+returned in a JWT and the content-type MUST be \texttt{application/jwt}.
+The response may also be encrypted without being signed.
+
+
+%==============================================================================

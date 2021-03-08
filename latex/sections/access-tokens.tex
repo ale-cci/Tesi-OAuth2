@@ -1,0 +1,147 @@
+\section{Access tokens}
+Since we are able to trust JWTs  without the use of a database, they offer the
+main advantage to not issue database calls to verify the user identity.
+
+
+Using JWTs instead of cookies for authentications grants the main advantage to
+not issue a database, but as they sail "with great power comes great
+responsibility", in fact if the token is stolen by someone, you cannot do
+anything about it.
+
+Since it is a completely stateless protocol, using JWT as is, there is no way
+you can revoke access to the token. No database calls means that there is
+nowhere to store that JWT is been revoked.
+
+It is true that it is not easy to steal them, because OAuth2 protocol specifies
+that all interactions between client and server are made using SSL protocol, but
+it is not impossible.
+
+One workaround to this problem is to make JWTs expire in a short lapse of time,
+usually 15 minutes to an hour, then force clients either to re-authenticate or
+provide them an extra token (\textit{refresh\_token}), used to re-claim
+authentication on their behalf.
+
+Refresh tokens are exactly like session: JWTs stored in the database, with a
+long or usually without expiry date.
+They should securely stored, in order to prevent XSS and CSRF attacks.
+
+Even with refresh token we have the big advantage to query the database
+approximately once each 15 minutes per user.
+
+With that said, it still lies the problem that there is no easy way to revoke a
+token. Even if a refresh token is deleted from the database, it's corrispettive
+access token is still usable until expiry.
+
+\subsection{Example of access token}
+The following whitespaces between the access token sections are been introduced
+only to simplify the readability.
+It is important to say that Whitespaces characters are not allowed inside an
+access token.
+
+\begin{lstlisting}
+eyJhbGciOiAiUlMyNTYiLCAia2lkIjogIjEiLCAidHlwIjogIkpXVCJ9.
+
+eyJhdXRocyI6ICIiLCAiaXNzIjogImh0dHBzOi8vbG9jYWxob3N0OjgwMDAiLCAic3V
+iIjogMiwgImlhdCI6IDE2MTQzNzI0MzUuMDM4MTg4NywgImV4cCI6IDE2MTQzNzYwMz
+UuMDM4MTg4N30.
+
+slCAkhLRu9w-rBhmLUh487UPrqkJF1cBpXE5LyWRR1KH1XcPA_QW_uen06p7eHI
+GNKs6zSttlz0metnTjyuPFtkuU7I9Tu1djF2b5qVxOjbeDjGr_7ESuJZakKa7ljMloR
+bEW65FRpTGllIPBmFOqp8VXlM1h30ogT_Mm-zl1DoSUcIIhrDT3qFEGvRz3nw049g2R
+0hkTPrQK-J4bkG-7vf9f9H_PKOel2l2JtKk-3kZ-l8JNKpqM29BVpTRJzmuxNsZMwVP
+JJtt-hqBinTFJ15YHwKf_hKT3bjybibmm2ciXjFHvK3p4HREdXwvsR7A4la4dto4FCt
+V09IG1L9eF0kyjFkLdu2Unz7kf2YFz4fHvU7KPizJt3hPJASi_l8HJoBd1Y7sTPsjxf
+IUycjgGp0yc7qwGl9ZuQmDXZ3dMj4VpBIEKGNMVbwU8IzInIFuC9R-NpqI961YCWxJ0
+Qnly5rrHtw3EJy9GjW8u5cJkY7w0lJCbpvfULMqNpznSXKC0WaoictP7d80CKc9LwER
+cyZY8kg4PMbZGhc2VHdEyGL4r1xZDqxZhdAYFMXRSs4DVJk5GkISyBmo2kE0rR3QYTA
+NIuB80vbjuN9IzX6TTEPfFbvPdFd7oTrmN_xhR_uMu0Omv8f0o0bvXDeYRg1fL6AWFa
+BOYO1qWCdTxj7r8as
+\end{lstlisting}
+
+\subsubsection{Head}
+\begin{lstlisting}
+eyJhbGciOiAiUlMyNTYiLCAia2lkIjogIjEiLCAidHlwIjogIkpXVCJ9.
+\end{lstlisting}
+\begin{lstlisting}
+{"alg": "RS256", "kid": "1", "typ": "JWT"}
+\end{lstlisting}
+
+In the header is contained the information that explains how the JWT has been
+created: the algorithm (\texttt{alg}), the type and the id of the encryption key
+used (\texttt{kid}).
+\\
+If the JWT is of type JWS (it has a signature), usually the \texttt{kid} refers
+to a public key, expsed in the jwks endpoint (more at page \pageref{jwks}).
+
+\subsubsection{Body}
+\begin{lstlisting}
+eyJhdXRocyI6ICIiLCAiaXNzIjogImh0dHBzOi8vbG9jYWxob3N0OjgwMDAiLCAic3V
+iIjogMiwgImlhdCI6IDE2MTQzNzI0MzUuMDM4MTg4NywgImV4cCI6IDE2MTQzNzYwMz
+UuMDM4MTg4N30.
+\end{lstlisting}
+\begin{lstlisting}
+{
+    "auths": "",
+    "iss": "https://localhost:8000",
+    "sub": 2,
+    "iat": 1614372435.0381887,
+    "exp": 1614376035.0381887
+}
+\end{lstlisting}
+
+OpenID specification describes these extra fields, required in the JWT body:
+\begin{itemize}
+    \item \texttt{sub}: subscriber identity, an unique identifier of the user in
+        the authorization server.
+    \item \texttt{iat} issued at, unix timestamp describing when the JWT has
+        been created.
+    \item \texttt{exp} expiry date of the JWT, expressed in unix timestamp.
+    \item \texttt{auths} is an example of custom field inserted from the authorization
+        provider
+\end{itemize}
+
+The full list of OpenID reserved claims could be found at page \pageref{openid}.
+
+\subsubsection{Signature}
+\begin{lstlisting}
+slCAkhLRu9w-rBhmLUh487UPrqkJF1cBpXE5LyWRR1KH1XcPA_QW_uen06p7eHI
+GNKs6zSttlz0metnTjyuPFtkuU7I9Tu1djF2b5qVxOjbeDjGr_7ESuJZakKa7ljMloR
+bEW65FRpTGllIPBmFOqp8VXlM1h30ogT_Mm-zl1DoSUcIIhrDT3qFEGvRz3nw049g2R
+0hkTPrQK-J4bkG-7vf9f9H_PKOel2l2JtKk-3kZ-l8JNKpqM29BVpTRJzmuxNsZMwVP
+JJtt-hqBinTFJ15YHwKf_hKT3bjybibmm2ciXjFHvK3p4HREdXwvsR7A4la4dto4FCt
+V09IG1L9eF0kyjFkLdu2Unz7kf2YFz4fHvU7KPizJt3hPJASi_l8HJoBd1Y7sTPsjxf
+IUycjgGp0yc7qwGl9ZuQmDXZ3dMj4VpBIEKGNMVbwU8IzInIFuC9R-NpqI961YCWxJ0
+Qnly5rrHtw3EJy9GjW8u5cJkY7w0lJCbpvfULMqNpznSXKC0WaoictP7d80CKc9LwER
+cyZY8kg4PMbZGhc2VHdEyGL4r1xZDqxZhdAYFMXRSs4DVJk5GkISyBmo2kE0rR3QYTA
+NIuB80vbjuN9IzX6TTEPfFbvPdFd7oTrmN_xhR_uMu0Omv8f0o0bvXDeYRg1fL6AWFa
+BOYO1qWCdTxj7r8as
+\end{lstlisting}
+
+\begin{lstlisting}
+# Signature verification
+\end{lstlisting}
+
+\subsection{Access tokens in openid}
+TODO: Access token in openid example
+
+\subsection{Pros and Cons of JWTs}
+\subsubsection{Pros:}
+\begin{itemize}
+    \item Stateless
+    \item great for api
+    \item secure
+    \item carry useful and trusted information
+    \item can store information that can drive UX without backend interaction.
+    \item No need for a centralized database.
+\end{itemize}
+\subsubsection{Cons:}
+\begin{itemize}
+    \item sharing secrets in a microservice architecture.
+    \item Key management: where to put public key; how to kow if it's valid and
+        deprecated keys.
+    \item very tricky to consume correctly
+    \item careful storage of refresh token
+    \item Impossibility to revoke tokens
+    \item Insecure implementation libraries (no algorithm)
+\end{itemize}
+

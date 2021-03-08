@@ -1,0 +1,80 @@
+\section{OpenID Reserved claims}
+{
+    \setlength\LTleft{-.7cm}%
+    \setlength\LTright{-1in}%
+    \begin{longtable}{||l|l|}
+        \hline
+        Claim Name             & Claim Description \\
+        \hline
+        \hline
+        iss                  & Issuer \\
+        sub                      & Subject \\
+        aud                      & Audience \\
+        exp                      & Expiration Time \\
+        nbf                      & Not Before \\
+        iat                      & Issued At \\
+        jti                      & JWT ID \\
+        name                     & Full name\\
+        given\_name                & Given name(s) or first name(s)\\
+        family\_name               & Surname(s) or last name(s)\\
+        middle\_name               & Middle name(s)\\
+        nickname                  & Casual name Shorthand name by which the End-User wishes to be referred to\\
+        preferred\_username        & Same as 'nickname'\\
+        profile                   & Profile page URL\\
+        picture                   & Profile picture URL\\
+        website                   & Web page or blog URL\\
+        email                     & Preferred e-mail address\\
+        email\_verified            & True if the e-mail address has been verified; otherwise false\\
+        gender                    & Gender\\
+        birthdate                 & Birthday\\
+        zoneinfo                  & Time zone\\
+        locale                    & Locale\\
+        phone\_number              & Preferred telephone number True if the phone number has\\
+        phone\_number\_verified     & been verified; otherwise false\\
+        address                   & Preferred postal address\\
+        updated\_at                & Time the information was last updated\\
+        azp                       & Authorized party - the party to which the ID Token was issued\\
+        nonce                     & Value used to associate a Client session with an ID Token\\
+        auth\_time                 & Time when the authentication occurred\\
+        at\_hash                   & Access Token hash value\\
+        c\_hash                    & Code hash value\\
+        acr                       & Authentication Context Class Reference\\
+        amr                       & Authentication Methods References\\
+        sub\_jwk                   & Public key used to check the signature of an ID Token\\
+        cnf                       & Confirmation\\
+        sip\_from\_tag              & SIP From tag header field parameter value\\
+        sip\_date                  & SIP Date header field value\\
+        sip\_callid                & SIP Call-Id header field value\\
+        sip\_cseq\_num              & SIP CSeq numeric header field parameter value\\
+        sip\_via\_branch            & SIP Via branch header field parameter value\\
+        orig                      & Originating Identity String\\
+        dest                      & Destination Identity String\\
+        mky                       & Media Key Fingerprint String\\
+        events                    & Security Events\\
+        toe                       & Time of Event\\
+        txn                       & Transaction Identifier\\
+        rph                       & Resource Priority Header Authorization\\
+        sid                       & Session ID\\
+        vot                       & Vector of Trust value\\
+        vtm                       & Vector of Trust trustmark URL\\
+        attest                    & Attestation level as defined in SHAKEN framework\\
+        origid                    & Originating Identifier as defined in SHAKEN framework\\
+        act                       & Actor\\
+        scope                     & Scope Values\\
+        client\_id                 & Client Identifier Authorized Actor - the party\\
+        may\_act                   & that is authorized to become the actor\\
+        jcard                     & jCard data\\
+        at\_use\_nbr                & Number of API requests for which the access token can be used\\
+        div                       & Diverted Target of a Call\\
+        opt                       & Original PASSporT (in Full Form)\\
+        vc                        & Verifiable Credential as specified in the W3C Recommendation\\
+        vp                        & Verifiable Presentation as specified in the W3C Recommendation\\
+        \hline
+    \end{longtable}
+}
+
+This table comes from \url{https://www.iana.org/assignments/jwt/jwt.xhtml},
+there you could find when and by which specification each reserved field was
+introduced.
+
+\restoregeometry
