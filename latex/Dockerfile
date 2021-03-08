@@ -6,6 +6,7 @@ RUN apt-get update && apt-get --no-install-recommends install -y \
         fonts-roboto \
         rubber\
         texlive-xetex \
+        texlive-fonts-recommended \
         texlive-latex-recommended \
         texlive-latex-extra \
         lmodern && \
