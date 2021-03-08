@@ -31,21 +31,24 @@
 %==============================================================================
 \section{Prelude}
 \subsection{What you will find in this paper}
-The goal of this document is to explain how does the OAuth2 protocol work and
-how it can be implemented and used within a webserver.
+The goal of this document is to illustrate the OAuth2 framework and
+how it can be used, by implementing a standalone micro-service.
 
-Further down we will see the strength and weaknesses of this protocol and when
+Further down we will point out the strength and weaknesses of this protocol; when
 it's best adopt this industry standard, where it's adopted and what are it's use
 cases.
 
-We will see what OpenID connect and the meaning of Identity Provider, Single SignOn
-and JWT.
+We will see what OpenID Connect is, the meaning of Identity Provider, Single
+Sign On and what JWT is.
+
 \subsection{Reading target}
-This paper is suited for people who are new to authentication protocols, want to
-integrate OAuth2 with their web server, or want to know in depth how JWT and
-OpenID works.
+This dissertation is suited for people who have a basic grasp on what is
+authentication/authorization, and want to integrate OAuth2 with their web
+server, or want to know in depth how JWT and OpenID works.
+
 \subsection{Examples}
-Some code examples will be included alongside the explanation, written in python.
+Alongside explanations, there will be included some code examples, written in
+python.
 Why python? You may ask, because i think it is arguably one of the most readable
 and concise languages out there.
 
@@ -195,6 +198,10 @@ requests.
          requested resource is provided at the client.
  \end{itemize}
 
+\subsection{Different grants for different clients}
+% TODO: expose better
+The specification differs between public and confidential client.
+
 \subsection{Different grant type}
 The specification supports different ways of obtaining the access token, called
 \textbf{grant types}.
@@ -206,6 +213,23 @@ The specification supports different ways of obtaining the access token, called
 \end{enumerate}
 
 \subsection{Access Token}
+Access tokens are in any shape or form, credentials, that client application use
+to access resources protected by resource servers.
+\\
+They take the form of a string, that usually (but not always) the client cannot
+interpret.
+
+Each access token is unique, and resource servers could verify the validity and
+look up the scopes, granted by the resource owner to the access token.
+
+The OAuth2 specification does not constrain the access token format, saying
+that, quote: \\
+\textit{``Access tokens can have different formats, structures, and methods of
+utilization''}.
+
+As we will see later, the OpenID Connect framework takes advantage of this
+freedom, by imposing a strict token format (see JWT at page \pageref{jwt}).
+
 \subsection{Refresh token}
 \begin{alltt}
   +--------+                                           +---------------+
@@ -353,31 +377,6 @@ The OAuth2 protocol provides a secure and standardized way for creating and exch
 
 
 %==============================================================================
-\subsection{Different types of grant}
-% OAuth2 is an authorization framework, that enables application to obtain limited
-% access to user accounts on an HTTP service.
-% It works by delegating the user authentication to the service that hosts the
-% user account, and authorizing third-party application to access the user accout.
-%
-% An OAuth2 grant type refers a way of how an application obtains the access
-% token.
-
-The grant type described in the specification are:
-\begin{itemize}
-    \item authorization code
-    \item implicit
-    \item client credentials
-    \item password
-\end{itemize}
-
-OAuth2 was conceptualized only as an authorization protocol, supporting multiple
-types of flows for obtaining the access token.
-
-\begin{enumerate}
-    \item different grant type
-    \item born as an authorization protocol
-    \item quick comparison with SAML
-\end{enumerate}
 \section{OAuth2: authorization code}
 \begin{alltt}
      +----------+
