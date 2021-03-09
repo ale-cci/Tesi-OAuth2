@@ -23,7 +23,7 @@ authentication on their behalf.
 
 Refresh tokens are exactly like session: JWTs stored in the database, with a
 long or usually without expiry date.
-They should securely stored, in order to prevent XSS and CSRF attacks.
+They should securely stored, in order to prevent \acs{xss} and \acs{csrf} attacks.
 
 Even with refresh token we have the big advantage to query the database
 approximately once each 15 minutes per user.

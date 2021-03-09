@@ -1,6 +1,6 @@
 \section{JWT}
 \label{jwt}
-JWT (JSON Web Token) is an internet standard for creating JSON based access tokens.
+\acs{jwt} (\acl{jwt}) is an internet standard for creating \acs{json} based access tokens.
 It asserts some number of claims in the token itself, so that authentication
 protocols that uses it are completely stateless.
 In other words, if i give a JWT to a completely different service it is
@@ -141,9 +141,9 @@ Each entry in the \texttt{code} array is required to have the keys:
         for encrypting data or verifying the signature. Values defined by the
         specification are: \texttt{sig} or \texttt{enc}.
         The use is is optional, unless the application requires it.
-    \item \texttt{alg} :
-    \item \texttt{e} and \texttt{n}
-    \item \texttt{kid} : (key id)
+    \item \texttt{alg}
+    \item \texttt{e} and \texttt{n}: public base and exponent
+    \item \acs{kid}: \acl{kid}
 \end{itemize}
 
 For more informations about the
@@ -152,11 +152,11 @@ JSON Web Keys are javascript object notation data structures that represents a
 cryptographic key.
 
 \subsection{JWE}
-JWE (JSON Web Encryption) differences from the previous JWS (JSON Web
-Signature), defines a way to encrypt your claims, so that only the intended
+\acs{jwe} (\acl{jwe}) differences from the previous \acs{jws} (\acl{jws}),
+defines a way to encrypt your claims, so that only the intended
 receiver could read the information presented by the token.
 
-The main advantage that it has over JWS is the protection against MITM attacks,
+The main advantage that it has over JWS is the protection against \acs{mitm} attacks,
 since the attacker cannot see the information contained in the token unless he
 has access to the encryption key.
 
