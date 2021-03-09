@@ -5,7 +5,7 @@
 \usepackage{alltt}
 \usepackage{longtable}
 \usepackage[strict]{chngpage}
-% \usepackage{acro}
+\usepackage{acro}
 
 \usepackage{hyperref}
 \setcounter{tocdepth}{2} % Show only sections in table of contents
@@ -16,6 +16,9 @@
 
 \graphicspath{{./res/}}
 
+\acsetup{first-style=short}
+
+\include{./acronyms}
 
 \begin{document}
 \include{sections/cover}
@@ -34,6 +37,7 @@
 \include{./sections/openid-claims}
 \include{./sections/acknowledgements}
 
+\printacronyms
 \include{bibliography}
 \end{document}
 % vim: nospell colorcolumn=80

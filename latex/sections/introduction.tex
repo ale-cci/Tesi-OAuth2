@@ -2,34 +2,34 @@
 \section{Introduction}
 Back when the first API services were invented, everything was easier.
 \\
-If you wanted to grant access to your private data to a third party application,
+If you wanted to grant private data access to a third party application,
 the sole thing you had to do was provide it your username and password, and
 presto!
 The application could freely access your account without any restrictions!
 
-But things have changed, now (and even back then) there is no guarantee that an
-application will keep your credentials all safe and sound, they could store them
-in plain text, or even worse use them for malicious purposes, by accessing more
-informations than the bare necessities.
+But things, especially now, are not so simple anymore: there is no guarantee
+that an application will keep your credentials securely stored, or even worse
+use them for malicious purposes, by accessing more informations than the bare
+necessities.
 
-To prevent that everyone finds a different solution to the same problem, we have
-agreed to web-standards, to securely allow third party applications to access
-protected resources.
+To prevent this kind of behavior, and that everyone finds a different solution
+to solve the same problem, we have agreed to standard protocols.
 \\
-The standard protocol discussed in this paper takes the name of \textbf{OAuth2}.
+The one discussed in this dissertation takes the name of \textbf{OAuth2}.
 
-Often confused with API
-keys\footnote{More on API keys:
+It is worth noting that this is not the only protocol that solves this kind of problem.
+Another one that is widely adopted by the industry is \textbf{SAML}\footnote{More on SAML: \url{https://en.wikipedia.org/wiki/Security_Assertion_Markup_Language}},
+but discussing it is not the scope of this paper.
+
+
+OAuth2 is often confused with API keys\footnote{More on API keys:
 \url{https://en.wikipedia.org/wiki/Application\_programming\_interface\_key}}
-for their similar use and terminology, OAuth2 grants the permission to access
-user data to third party application.
-The protocol specifies that, instead of you handing them your credentials, an
-authentication server forges a key (commonly called \textbf{access token}) that
-will be used by clients to perform requests to the user data.
-
-It is worth noting that this is not the only protocol used by the industry (see
-SAML\footnote{More on SAML: \url{https://en.wikipedia.org/wiki/Security_Assertion_Markup_Language}}).
-
+%
+for their similar use and terminology.
+\\
+A simple way to distinguish the two is
+is that API keys are used when the owner of an application owns the data that
+the application uses, OAuth2 is used when the two differs.
 
 \subsection{Example of OAuth2 use-case}
 
