@@ -1,19 +1,24 @@
 
 \section{OAuth2 Protocol}
-OAuth2 is an authentication framework, which stands for Open Authentication.
-It enables applications to obtain limited access to an HTTP service.
+OAuth2 (abbreviation of Open Authentication) is an authentication framework,
+which enables applications to obtain limited access to protected resources,
+that reside on an HTTP service.
 
-It works by delegating the authentication to an external server, which provides
-cryptographically signed tokens, containing the authorization granted by the
-user.
+It works by separating the concerns of resource provision and authentication to
+two separate entities: the resource server and the authorization server.
+
+Once the access is granted to a third party application by the authorization server,
+an access token cryptographically signed is issued.
 
 Since the token is signed or encrypted, the resource server, can blindly trust
 the forged tokens, and checks if the required authorizations are contained in
 the token.
 
 
-\subsection{Abstract Protocol flow}
-\begin{alltt}
+\subsection{Protocol Overview}
+\begin{figure}[h]
+    \centering
+    \begin{verbatim}
      +--------+                               +---------------+
      |        |--(A)- Authorization Request ->|   Resource    |
      |        |                               |     Owner     |
@@ -31,7 +36,8 @@ the token.
      |        |                               |     Server    |
      |        |<-(F)--- Protected Resource ---|               |
      +--------+                               +---------------+
- \end{alltt}
+    \end{verbatim}
+\end{figure}
 Above you could see the main flow of the OAuth2 protocol, the final objective is
 always to obtain an access token, which could be used to perform authorized
 requests.

@@ -32,66 +32,73 @@ the application uses, OAuth2 is used when the two differs.
 
 \subsection{Example of OAuth2 use-case}
 
-Lets say that you go on vacation with your friends, during which you take a ton
-of pictures and videos, and your friend do too.
-Each one of you uploads the pictures and videos he took on Google cloud, and
-you have a shared folder that weights a few Giga.
+Lets say that last summer you went on vacation with your friends, during which
+you took a ton of pictures and videos, and your friend did too.
+Each one of you did upload the pictures and videos he took on Google Drive, and
+now you have a few GB of stuff, stored on a shared folder.
 
-At the end of the vacation you want to organize all the pictures and videos
-automatically, by adding them labels and name them all in a consistent way, for
-example using the place and the date of where the picture was created.
+Now, with the current pandemic, you are locked at home, and looking back at the pictures, the first thing that comes to your mind is:
+\textit{"It would be really nice if i could find a way to organize them, by adding some labels of where the picture was shoot"}.
 
-This sounds like a lot of work to do all by hand, but thankfully you find an
-online application that does exactly what you need: by combining image
-processing and the EXIF tags of each picture or video it can automatically
-create labels and rename them. Neat! Now you can delegate all the work with that
-application.
+Unfortunately this sounds like a lot of work, and surely you are not interested
+to do it all by hand.  But thankfully, when you are about to close your laptop,
+you find an online application that fits exactly your needs: by combining image
+processing and the EXIF tags of each picture or video, it can automatically tag
+them with appropriate labels.
+\\
+Neat!  Now you can delegate all that boring work to that application.
+
+There's a single problem: in order to tag the images, that web application
+requires access them, and the only apparent way do so is by uploading them via
+HTTP.
 
 Conveniently that application has a button called "Access with Google drive"
 that when pressed opens up the Google login page and asks you if you want to
 grant access to the application.
 
 You perform the login with Google, accept the permissions and magically the
-application starts doing it's work, labeling and renaming images.
+application starts doing it's work, labeling them one by one.
 
 % ================================================================================
 \subsection{The terminology}
-What you have just read is a typical example of the OAuth2 flow, but before deep
-diving into the implementation and specification of this protocol, let's clear
+What you have just read is a typical example of the OAuth2 flow:
+you want to grant access to an application some data which it does \textbf{not} own,
+and most importantly you did \textbf{not} give to it your Google Drive
+password, as strangely as it may sound.
+
+But before deep diving into the implementation and specification of this protocol, let's clear
 some terminology.
 
-First and foremost the \textbf{resource owner}, or in other words the one who
-actually owns the \textbf{protected resource} or resources.
+First and foremost there is you, the \textbf{resource owner}, or in other words the one who
+actually owns the \textbf{protected resource} (aka. your vacation's pictures and videos).
+\\
+The protected resource is some form of private data, that is not
+publicly accessible.  The server who stores and the protected resources is
+called the \textbf{resource server}, and in this schema is the only one who
+should have access to them.
 
-\begin{itemize}
-    \item The \textbf{protected resources}, some form of private data that is
-        not publicly accessible, in the example's case the vacation's photo and
-        videos.
-    \item \textbf{resource owner}: the one who own the protected resource, in
-        the example's case you (and your friends).
-    \item \textbf{authorization server} the service that knows the resource
-        owner's identity, or in other words an application where the resource
-        owner has an account. In the example's case it's Google.
-    \item the \textbf{client} or \textbf{third party application} is the
-        applications that requires access to the private resource (photos and
-        videos), or access to perform some actions on the private resource
-        (rename and assign them some labels).
-    \item the \textbf{resource server} is the one that has access to the private
-        data, sometimes is the same as the authorization, but as we see in our
-        example, it could be different.
-        In the example's case it's Google drive \footnote{to be clear, Google
-        has two different services: one for authorization and one for Google
-        drive}.
-\end{itemize}
+In order to access the private data, a client or (third party application) must
+provide an \textbf{access token} to the resource server.
 
-\subsection{Authentication and Authorization}
+Access tokens are issued by an \textbf{authorization server}, that sometimes,
+but not always, could be the same as the resource server.
+
+In our example the two were different: the authorization server was
+\textit{Google} and the resource server was \textit{Google Drive}.
+
+\subsection{Difference between Authorization and Authentication}
 Authorization and authentication my sound similar to one another, but they are
 two distinct concepts, used in identity and access management:
-authentication says who you are, authorization says what actions you can
-perform.
+authentication says \textbf{who} you are, authorization says \textbf{what}
+actions you can perform.
 
-OAuth2 is only an authorization protocol, which means that it's only use is for
-granting access to protected resources to a client.
+A key is an authorization, which says that you can open a door. Your ID card is
+an authentication, since it says who you are.
+A badge works both as an authorization and authentication, since it could be
+used to say who you are and open doors.
 
-Later we could see that it could be extended and used as an authentication
-provider with OpenID connect (page \pageref{openid}).
+OAuth2 is only an extensible authorization framework, which means that it's
+only use is for granting access to protected resources to a client.
+
+Later (page \pageref{openid}) we will see that OpenID Connect exploits it's
+extensibility, and grants it authentication capabilities.
