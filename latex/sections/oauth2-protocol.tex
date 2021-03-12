@@ -1,7 +1,7 @@
 
 \section{OAuth2 Protocol}
 OAuth2 (abbreviation of Open Authentication) is an authentication framework,
-which enables applications to obtain limited access to protected resources,
+which enables applications to obtain limited access over protected resources,
 that reside on an HTTP service.
 
 It works by separating the concerns of resource provision and authentication to
@@ -14,11 +14,10 @@ Since the token is signed or encrypted, the resource server, can blindly trust
 the forged tokens, and checks if the required authorizations are contained in
 the token.
 
-
 \subsection{Protocol Overview}
 \begin{figure}[h]
     \centering
-    \begin{verbatim}
+    \begin{BVerbatim}
      +--------+                               +---------------+
      |        |--(A)- Authorization Request ->|   Resource    |
      |        |                               |     Owner     |
@@ -36,37 +35,58 @@ the token.
      |        |                               |     Server    |
      |        |<-(F)--- Protected Resource ---|               |
      +--------+                               +---------------+
-    \end{verbatim}
+    \end{BVerbatim}
+    \caption{OAuth2 flow overview}
+    \label{fig:oauth-flow-overview}
 \end{figure}
-Above you could see the main flow of the OAuth2 protocol, the final objective is
+It's important to know that, before performing any authorization request, the
+client should already know some credentials, that will be used to obtain an access token.
+Those credentials are: the \textbf{client id} and \textbf{client secret}.
+
+Usually they are obtained by registering the client via an HTML form, exposed
+in an amministrative interface by the authorization server.
+However there is no official method since it is not specified in the OAuth2
+specification.
+
+With that out of the way, right above (figure \ref{fig:oauth-flow-overview}),
+you could see the main flow of the OAuth2 protocol, the final objective is
 always to obtain an access token, which could be used to perform authorized
 requests.
 
 
  \begin{itemize}
-     \item[(A)] The client request an authorization from the resource owner.
-         The authorization request is performed directly to the resource owner,
-         or preferably via the authorization server server, as intermediary.
-     \item[(B)] The client receives an authorization grant, which is a
-         credential representing the resource owner's authorization, expressed
-         using one of four grant types defined in the specification or using an
-         extension grant type.
-     \item[(C)] The client requests the access token, by authenticating with the
+     \item[(A)]
+         The client initiates the protocol by sending an authorization request,
+         which is performed directly to the resource owner, or preferably via
+         the authorization server as an intermediary.
+     \item[(B)]
+         The client receives an authorization grant, which in all shape or
+         forms a credential, which represents the resource owner's
+         authorization.  The authorization grant is expressed using one of the
+         four grant types, defined in the specification, or using a custom
+         specified grant type extension.
+     \item[(C)]
+         The client requests the access token, by authenticating with the
          authorization server and presenting the received authorization grant.
-     \item[(D)] The authorization server authenticates the client and validates
-         the received authorization grant, if valid the access token is
-         returned.
-     \item[(E)] the client requests the protected resource from the resource
+     \item[(D)]
+         The authorization server authenticates the client and validates the
+         received authorization grant, if valid the access token is returned.
+     \item[(E)]
+         The client requests the protected resource from the resource
          server providing the access token.
-     \item[(F)] the resource server validates the access token. If valid the
-         requested resource is provided at the client.
+     \item[(F)]
+         The resource server validates the access token.
+         If the validation is successful, the requested resource is provided at the client,
+         otherwise an authorization error is returned.
  \end{itemize}
 
 \subsection{Different grants for different clients}
 % TODO: expose better
-The specification differs between public and confidential client.
+The specification defines two types of clients: \textbf{public} and \textbf{confidential}.
 
-\subsection{Different grant type}
+Public clients are the one that could not keep securely client credentials.
+Examples are mobile applications.
+
 The specification supports different ways of obtaining the access token, called
 \textbf{grant types}.
 \begin{enumerate}
