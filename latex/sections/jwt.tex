@@ -1,4 +1,4 @@
-\section{JWT}
+\section{Json Web Token}
 \label{jwt}
 \acs{jwt} (\acl{jwt}) is an internet standard for creating \acs{json} based access tokens.
 It asserts some number of claims in the token itself, so that authentication
@@ -21,6 +21,19 @@ The public key is usually exposed from the same server via endpoint (see page
 \pageref{jwks}).
 
 \subsection{JWT Structure}
+\begin{lstlisting}
+jwt = access_token
+chunks = jwt.split('.')
+
+if len(chunks) == 5:
+    raise ValueError('Hey this is a JWE!')
+
+elif len(chunks) != 3:
+    raise ValueError('Malformed JWT!')
+
+head, body, signature = chunks
+\end{lstlisting}
+
 JWT are composed by three  parts:
 
 \begin{enumerate}
@@ -119,10 +132,10 @@ Here is an example:
     "keys": [
         {
             "alg": "RS256",
-            "e": "AQAB",
             "kid": "1",
             "kty": "RSA",
-            "n": "0wMtv3UjBSWh31xs5ogySIof_HxWcdetqnkJYzsdYO_niyhgsO...",
+            "n": "0wMtv3UjBSWh[...]niyhgsO",
+            "e": "AQAB",
             "use": "sig"
         }
     ]

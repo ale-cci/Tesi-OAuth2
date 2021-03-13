@@ -1,4 +1,29 @@
 \section{Refresh token}
+% TODO: explain why you need access tokens.
+For now all fine and dandy, but what if you need to perform
+another request after an hour or maybe the next day?
+
+Access tokens lifetime is really short, usually in the range from fifteen
+minutes to an hour, ad for sure you don't want users of your application
+to click the "grant permissions" button every single day, or worse every hour.
+
+Fortunately refresh tokens come at our help!
+They could be used for, (you guessed it) obtain a new access token, once the one
+in use becomes invalid or expired.
+
+They could also be used to obtain additional access token, with identical or
+narrower scope.
+
+Differently from access tokens, refresh tokens have a long lifetime (i.e. 6
+months) or no expiry at all, and
+are only intended to be used by the authorization
+server.
+\\
+Therefore the refresh token is not sent to resource server alongside the access token
+once a request to a private resource is performed.
+
+\subsection{When does the client obtain the refresh token?}
+
 \begin{figure}[h]
     \centering
     \begin{BVerbatim}
@@ -23,22 +48,16 @@
 |        |<-(H)----------- Access Token -------------|               |
 +--------+           & Optional Refresh Token        +---------------+
     \end{BVerbatim}
-    \caption{Refresh token flow}
+    \caption{Refresh token in OAuth2}
+    \label{fig:refresh-token-flow}
 \end{figure}
 
-Refresh tokens are credentials used to obtain access tokens. Refresh tokens are
-issued to the client by the authorization server and are used to obtain a new
-access token when the current access token becomes invalid or expires, or to
-obtain an additional access token identical or narrower scope.
+Refresh tokens are issued to the client by the authorization server, and they
+take the form of a string, opaque to the client application.
 
 Issuing a refresh token is completely optional, at the desecration of the
 authorization server.
-If the authorization server issues an access token, it is included with the
-access token (Step B).
-
-The value of the refresh token is usually a string opaque to the client, unlike
-access token, it is only intended to be used by the authorization server,
-therefore this kind of token is not sent to the resource server when accessing
-protected resources.
+If the authorization server issues a refresh token, it is included alongside the
+access token (Step B of figure \ref{fig:refresh-token-flow}).
 
 

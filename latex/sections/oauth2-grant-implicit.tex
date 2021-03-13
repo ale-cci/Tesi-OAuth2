@@ -54,12 +54,13 @@ Therefore the steps required to perform the authorization are reduced to 3:
 \end{figure}
 
 
-This protocol is a bit "faster" than the authorization code grant (page \pageref{sec:auth-code}) (if you want to define it
-like that), because it skips the intermediate step to exchange code with access
+This protocol is a bit "faster" than the authorization code grant (page
+\pageref{sec:auth-code}) (if you want to define it like that), since it skips
+the intermediate step to exchange code with access
 token.
 
 But it is clear that if an external application (like a chrome extension) reads
-your "\texttt{window.location}", you are basically done, and the innocent chrome
+your "\texttt{window.location}", you are basically done, and the "innocent" chrome
 extension could perform OAuth2 requests with your account, without you having to
 give it the permissions!
 
@@ -70,7 +71,7 @@ It is advised to remove the access token from the URL once you have read it, to
 minimize the possibility to leak it.
 
 \subsection{Two channel communications: trusted and insecure}
-There are no perfectly secured channels in the real world, but there are at
+There are no perfectly secured channels, but there are at
 best, only ways to make a less secure channel more secure.
 
 In the standard flow of the OAuth2 protocol (grant code), two channels are
@@ -86,4 +87,41 @@ The "back-end channel" takes the name of "trusted channel". On the other hand,
 the fronted takes the names of "insecure channels", because it's easily tampered
 and overheard.
 
-%==============================================================================
+\subsection{PKCE (Proof Key for Code Exchange)}
+\label{pkce}
+Public applications, such as desktop and mobile apps, are unable to securely
+store credentials, in our case, the client secret.
+
+For this particular reason the implicit flow has been created, so
+that the step after the authorization that exchanges the code and the secret
+with the authorization code is skipped, so the authorization code is immediately
+returned.
+
+This particular sequence of events opens up a vulnerability:
+when the access token is returned by the authorization response, malicious apps
+running alongside our OAuth2 client are able to read it, and therefore use it as
+our application would.
+
+For example, if your client is running in a browser, let's say firefox just to
+pick one, any plugin you have installed has access to the current url, and
+therefore to the access\_token.
+
+\ac{pkce} is a superset feature for OAuth2, idealized for preventing this kind of
+attack, called "authorization code interception".
+
+OAuth2.1 specification will mandate that all implementation of the authorization
+grant type use \ac{pkce}.
+
+\begin{enumerate}
+    \item the client generates a random string, and calculates the hash using a
+        hashing function
+    \item the client performs the normal oauth2 flow, providing along with the
+        client secret, the random string hashed value.
+    \item when the authorization server performs a successful redirect with the
+        'code', the client exchanges with a post request, the code and the
+        unhashed secret with the access token.
+\end{enumerate}
+
+This feature blocks "easy" oauth2 attacks, that could be performed simply by
+reading the access token from the GET request.
+

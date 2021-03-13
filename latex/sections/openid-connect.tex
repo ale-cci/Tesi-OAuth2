@@ -1,15 +1,51 @@
 \section{OpenID connect}
 \label{openid}
-OAuth2.0 is designed only for granting authorization to third party applications
-to the resource server. Nothing more and nothing less.
+As we have seen so far, OAuth2 is designed only to grant authorization.
 
-To make an example, OAuth2 is like giving an application a key, that does not
-tell anything about the owner's identity.
+To make an example, OAuth2 access tokens, are like a car key: they grant you
+permission to drive the car, but they don't tell anything about the owner's
+identity.
 
-OpenID Connect (OIDC) is a thin layer that sits on top of OAuth2.0 that add functionality around
-login and profile information about the person who is logged in.
-Instead of a key, OpenID is like giving a person a badge. A badge not only gives
-permission but also some basic information of who your are.
+But what if we want to know some information about the user that is performing a
+specific request?
+OAuth2 does not provide anything out of the box. In the past companies like
+Facebook  and Google found their own way to perform authentication using OAuth2
+(see Facebook Connect).
+To prevent the creation of half a billion of more protocol, the OpenID Connect
+standard was born.
+
+
+OpenID Connect (OIDC) is a thin layer build on top of OAuth2.0 that adds
+authentication capabilities.
+
+The access token, previously not used by the client, is now a JWT (page
+\pageref{jwt}), which contains the authorized scopes, and informations about the
+user that granted those permissions.
+
+In other words, the access token is now a badge, which not only gives
+permissions, but also contains some basic informations about who you are.
+
+\subsection{Example of OpenID redirect uri}
+
+\begin{lstlisting}
+import urllib.request
+
+def href_login_with_google():
+    ''' Creates a login with google url '''
+
+    callback_url = urllib.request.quote('http://localhost:3000')
+    client_id = 'YOUR-CLIENT-ID-HERE'
+
+    querystring = urlencode({
+        'redirect_uri': callback_url,
+        'client_id':    client_id,
+        'scopes':       'openid http://drive.google.com',
+        'grant_type':   'code',
+    })
+
+    return f'https://www.googleapis.com?{querystring}'
+\end{lstlisting}
+Notice any difference with the one at page TODO?
 
 The OpenID requests in the OAuth2 protocol are easily recognizable by the
 'openid' included in the scope list.
@@ -47,7 +83,8 @@ authorization server, such as the email address.
 The full list of OpenID Connect specification reserved scopes is reported at
 page \pageref{openid}.
 
-\subsection{the /userinfo endpoint}
+\subsection{The concept of Single Sign On and Identity Provider}
+\subsection{Get more informations about authenticated users}
 OpenID specification defines a protected OAuth2 endpoint, that returns
 additional informations (claims) about the authenticated end-user.
 To obtain the requested claims, the client makes a request to the userinfo
