@@ -13,43 +13,48 @@ Therefore the steps required to perform the authorization are reduced to 3:
     \item The access token is returned to the third party client.
 \end{enumerate}
 
-\begin{alltt}
-     +----------+
-     | Resource |
-     |  Owner   |
-     |          |
-     +----------+
-          ^
-          |
-         (B)
-     +----|-----+          Client Identifier     +---------------+
-     |         -+----(A)-- & Redirection URI --->|               |
-     |  User-   |                                | Authorization |
-     |  Agent  -|----(B)-- User authenticates -->|     Server    |
-     |          |                                |               |
-     |          |<---(C)--- Redirection URI ----<|               |
-     |          |          with Access Token     +---------------+
-     |          |            in Fragment
-     |          |                                +---------------+
-     |          |----(D)--- Redirection URI ---->|   Web-Hosted  |
-     |          |          without Fragment      |     Client    |
-     |          |                                |    Resource   |
-     |     (F)  |<---(E)------- Script ---------<|               |
-     |          |                                +---------------+
-     +-|--------+
-       |    |
-      (A)  (G) Access Token
-       |    |
-       ^    v
-     +---------+
-     |         |
-     |  Client |
-     |         |
-     +---------+
-\end{alltt}
+\begin{figure}[h]
+    \centering
+    \begin{BVerbatim}
++----------+
+| Resource |
+|  Owner   |
+|          |
++----------+
+     ^
+     |
+    (B)
++----|-----+          Client Identifier     +---------------+
+|         -+----(A)-- & Redirection URI --->|               |
+|  User-   |                                | Authorization |
+|  Agent  -|----(B)-- User authenticates -->|     Server    |
+|          |                                |               |
+|          |<---(C)--- Redirection URI ----<|               |
+|          |          with Access Token     +---------------+
+|          |            in Fragment
+|          |                                +---------------+
+|          |----(D)--- Redirection URI ---->|   Web-Hosted  |
+|          |          without Fragment      |     Client    |
+|          |                                |    Resource   |
+|     (F)  |<---(E)------- Script ---------<|               |
+|          |                                +---------------+
++-|--------+
+  |    |
+ (A)  (G) Access Token
+  |    |
+  ^    v
++---------+
+|         |
+|  Client |
+|         |
++---------+
+\end{BVerbatim}
+    \caption{Implicit grant flow \cite{ietf-oauth}}
+    \label{fig:authorization-implicit-grant-flow}
+\end{figure}
 
 
-This protocol is a bit "faster" than the other one (if you want to define it
+This protocol is a bit "faster" than the authorization code grant (page \pageref{sec:auth-code}) (if you want to define it
 like that), because it skips the intermediate step to exchange code with access
 token.
 

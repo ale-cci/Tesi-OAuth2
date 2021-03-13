@@ -59,7 +59,7 @@ In the client registration, it is required to specify:
 |        |<-(F)--- Protected Resource ---|               |
 +--------+                               +---------------+
     \end{BVerbatim}
-    \caption{OAuth2 flow overview}
+    \caption{OAuth2 flow overview \cite{ietf-oauth}}
     \label{fig:oauth-flow-overview}
 \end{figure}
 
@@ -139,6 +139,8 @@ by the resource server.
 They take the form of a string, that usually (but not always) is interpretable
 from the resource and authorization servers.
 
+Access tokens as you will expect, could be: value, expired, revoked or invalid.
+
 Each access token is unique, and resource servers could verify it's validity and
 look up the list of actions (called \textbf{scopes}), that have been granted
 by the authorization server server to that specific access token.
@@ -157,25 +159,3 @@ As we will see later, the OpenID Connect framework takes advantage of this
 freedom, and imposes the JWT token format (see \ac{jwt} at page \pageref{jwt}).
 
 
-\subsection{The protocol}
-\subsubsection{OAuth2}
-Provide an access token at each client, which they could use to validate their
-identity at each API request.
-This token could be either valid, expired, revoked or invalid.
-
-\subsubsection{Small digression on API Key}
-\begin{lstlisting}[language=bash]
-$ curl --header 'Authorization: Apikey 1234567890abcdef'
-\end{lstlisting}
-API keys make sense when the users of an API are only developers.
-
-
-\begin{lstlisting}[language=bash]
-$ curl --header "Authorization: Bearer $ACCESS_TOKEN" \
-    http://localhost:8080/api
-\end{lstlisting}
-
-The OAuth2 protocol provides a secure and standardized way for creating and exchanging those token between client and server.
-
-
-%==============================================================================
