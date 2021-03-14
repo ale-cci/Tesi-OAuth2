@@ -21,5 +21,4 @@ In order to make all steps work you have to configure a google cloud project (ex
 
 ##### Useful links
 * [PDF](https://bitbucket.org/ale-cci/tesi-oauth2/downloads/oauth2.pdf)
-* [Scaletta tesi](./zettel/scaletta.md)
 * [Official OAuth protocol documentation](https://oauth.net/2/)
