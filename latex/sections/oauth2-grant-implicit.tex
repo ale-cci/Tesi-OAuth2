@@ -1,17 +1,13 @@
 \section{OAuth2: implicit flow}
 \label{sec:implicit}
-Since public clients could not store a "client secret" to exchange for an
-authorization code, the protocol is slightly altered.
-Instead of returning the authorization code, the access token is returned
-directly in the GET parameters of the redirect.
+Public applications, such as desktop and mobile apps, are not able to store
+securely store client credentials, in particular the client secret.
 
-Therefore the steps required to perform the authorization are reduced to 3:
-\begin{enumerate}
-    \item Redirect to the authorization provider
-    \item User performs the authentication and approves the requested
-        permissions
-    \item The access token is returned to the third party client.
-\end{enumerate}
+For this particular reason the OAuth2 specification felt the urge to alter the
+main protocol, and completely skip the step of exchanging the authorization code
+and client secret with the access token.
+Instead the access token is returned immediately after the owner grants the
+permissions, as a GET parameter in the redirect URL.
 
 \begin{figure}[h]
     \centering
@@ -52,6 +48,21 @@ Therefore the steps required to perform the authorization are reduced to 3:
     \caption{Implicit grant flow \cite{ietf-oauth}}
     \label{fig:authorization-implicit-grant-flow}
 \end{figure}
+
+\begin{enumerate}
+    \item[(A)]
+        The client application redirect to the authorization server, (always
+        providing the client id, callback url and scopes)
+    \item[(B)]
+        The users authenticates and chooses to grant or deny the
+        authorization.
+    \item[(C)]
+        The access token is returned as GET parameter from the authorization
+        server to the client application (if the request was accepted).
+
+    \item[(D)]
+        % TODO
+\end{enumerate}
 
 
 This protocol is a bit "faster" than the authorization code grant (page

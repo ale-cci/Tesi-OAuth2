@@ -89,8 +89,8 @@ signature = compute_hash(payload)
 Some reserved body claims according to the specification are:
 
 \subsubsection{Generate public Public/Private Key}
-\begin{alltt}
-    \$ ssh-keygen -v
+\begin{verbatim}
+    $ ssh-keygen -v
     The key fingerprint is:
     SHA256:tFKUq1HLfJ3Iy6toGec804dKXPgx4P6rrL6Tc4S0wVY ale-cci@vagrant
 
@@ -107,9 +107,7 @@ Some reserved body claims according to the specification are:
     |     o=*=*oo     |
     +----[SHA256]-----+
 
-
-    \$ ssh-copy-id -i ~/.ssh/id_rsa username@host
-\end{alltt}
+\end{verbatim}
 Authorization via asymmetric cryptography. Two keys are generate a public and a secret one.
 The public key is, as the name suggests, public and everyone could read it.
 The client encodes his messages with the private key; the receivers could validate the authenticity of those messages using the public key.
@@ -117,7 +115,7 @@ The client encodes his messages with the private key; the receivers could valida
 This is one of the safest methods, but it's not viable as we need to distribute in some way the private key to
 trusted users.
 
-\subsubsection{Share the public key}
+\subsection{Public Key sharing}
 \label{jwks}
 To avoid copy-pasting public keys between services, usually the authentication
 server exposes them in the \texttt{.well-known/jwks.json} endpoint, using the

@@ -28,28 +28,26 @@ permissions, but also contains some basic informations about who you are.
 \subsection{Example of OpenID redirect uri}
 
 \begin{lstlisting}
-import urllib.request
+from urllib.parse import urlencode
 
-def href_login_with_google():
-    ''' Creates a login with google url '''
+querystring = urlencode({
+   'response_type': 'code',
+   'client_id':     'YOUR-CLIENT-ID',
+   'redirect_uri':  'http://localhost:8080',
+   'scope':         'openid https://www.googleapis.com/auth/drive.file',
+   'state':         '123-EXAMPLE'
+})
 
-    callback_url = urllib.request.quote('http://localhost:3000')
-    client_id = 'YOUR-CLIENT-ID-HERE'
-
-    querystring = urlencode({
-        'redirect_uri': callback_url,
-        'client_id':    client_id,
-        'scopes':       'openid http://drive.google.com',
-        'grant_type':   'code',
-    })
-
-    return f'https://www.googleapis.com?{querystring}'
+redirect_to = (
+   f'https://accounts.google.com/o/oauth2/v2/auth?{querystring}'
+)
 \end{lstlisting}
-Notice any difference with the one at page TODO?
+Notice any difference with the one at page \pageref{lst:authorization-code}?
 
 The OpenID requests in the OAuth2 protocol are easily recognizable by the
 'openid' included in the scope list.
 
+\subsection{Single Sign On and Identity Provider}
 OIDC establish a client to perform a login session.
 When an authorization server supports OIDC it referred as an identity provider,
 since it provides information about the resource owner back to the client.
@@ -83,7 +81,6 @@ authorization server, such as the email address.
 The full list of OpenID Connect specification reserved scopes is reported at
 page \pageref{openid}.
 
-\subsection{The concept of Single Sign On and Identity Provider}
 \subsection{Get more informations about authenticated users}
 OpenID specification defines a protected OAuth2 endpoint, that returns
 additional informations (claims) about the authenticated end-user.
