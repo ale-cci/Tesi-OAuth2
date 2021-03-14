@@ -1,3 +1,4 @@
+% vim: tw=80
 \section{OAuth2: authorization code}
 \label{sec:auth-code}
 \begin{figure}[h]
@@ -35,130 +36,139 @@
 Note: The lines illustrating steps (A), (B), and (C) are broken into
 two parts as they pass through the user-agent.
 
+As defined in the specification, this is the most secure way to obtain an access token.
+It uses at it's best two channels of communication:
+A front-end channel, less secure but with user interaction, and a back-end channel, more
+secure but that lives on the server side of the client application.
 
-The authorization code grant type is used to obtain both access and refresh
-tokens, and is optimized for confidential clients.
-Since it is a redirection-based flow, the clients must be capable of interacting
-with the resource owner's user-agent, and capable of receiving incoming requests
-(via redirection) from the authorization server.
+If you don't know what a \textbf{user-agent} is, you could think of it for now
+as the internet browser used by the user, ex: Firefor or Chrome.
 
 \subsection{Steps required to obtain the access token}
-% NOTE: re-read and explain in more human words this
+Let's see together what are the steps required to obtain an access token:
 \begin{enumerate}
-    \item[(A)] the client redirects the resource owner's user agent to the
-        authorization endpoint, and provides the client identifier, request
-        scope state and redirection URI, to which the authorization server will
-        send the user agent back, once the access is granted (or denied).
-    \item[(B)] the authorization server authenticates the resource owner (via
-        user agent) and asks the resource owner to allow or deny, the client's
-        access request.
-    \item[(C)] Assuming the resource's access is granted, the authorization
-        server redirects the user-agent back to the client using the redirection
-        URI provided earlier.
-    \item[(D)] The client exchanges the received authorization code, client id,
-        client secret and once again the redirection uri for the authorization code.
+    \item[(A)]
+        The authorization process starts with the client, redirecting the owner's user agent
+        to the authorization server.
 
-    \item[(E)] the authorization server authenticates the client, validates the
-        authorization code, and ensures that the redirection URI received
-        matches the URI used to redirect the client in step (C). If valid, the
-        authorization server responds back with an access token and,
-        optionally a refresh token.
-\end{enumerate}
+        In the redirect URL, the client identifies itself by providing the
+        client id and a callback URL as GET parameters, and specifies the
+        permissions that he wants to access.
 
-\begin{enumerate}
-    \item
-        Redirect to the authorization provider.
-        \begin{alltt}
-    http://google.apis.com?response_type=code\&client_id...
-        \end{alltt}
+        The crafted URL points to the 'authorization page' of the authorization server.
 
-    \item
-        If the authorization is successful, the OAuth2 server will redirect to
-        \lstinline{redirect\_uri} passing a \lstinline{code}
-        as GET parameter. Otherwise \lstinline{error} contains the reason why the authorization was not successful.
-        \begin{alltt}
+    \item[(B)]
+        The authorization server, authenticates the resource owner, and asks him to allow or
+        deny, the client's requested permissions.
+
+    \item[(C)]
+        Assuming that the permission's request was approved, the authorization server
+        redirects the user-agent back to the client, using the callback URL provided earlier.
+
+        In this redirect is included as GET parameter a token called "authorization code".
+
+    \item[(C)]
+        If the permission request was denied, the authorization server performs
+        a 302 redirect to the client application, providing a GET parameter
+        named \texttt{error}, containing a short message of what went wrong.
+
+    \item[(D)]
+        The client application reads the authorization code, and performs a post request
+        to the authorization server to obtain the access token, providing as parameters:
+        the \texttt{authorization\_code}, the client id and secret, the callback
+        uri (\texttt{redirect\_uri}), and the grant type.
+
+        Since this is the authorization code grant type, this value will always
+        be equal to \texttt{code}.
+
+
+        \begin{verbatim}
     POST /oauth/token HTTP/1.1
     Host: authorization-server.com
 
     grant_type=authorization_code
     &code=xxxxxxxxxxx
-    &redirect_uri=https://example-app.com/redirect
     &client_id=xxxxxxxxxx
     &client_secret=xxxxxxxxxx
-        \end{alltt}
+    &redirect_uri=https://example-app.com/redirect
+        \end{verbatim}
 
-        \textit{If an authorization code is used more than once, the authorization server must deny the subsequent request.}
 
-    \item
-        The client exchanges the \lstinline{code}, called also "grant token", with the server to obtain an
-        \\
-        \lstinline{access\_token}.
-    \item The server returns the access token with additional informations, such
-        as expire date and JWT.
-    \item
-        The client uses the access token for APIs requests.
+    \item[(E)]
+        The authorization sever authenticates the client, validates the
+        authorization code, and ensures that the redirect URI received, matches
+        the URI used to redirect the client in step (C).
+
+        If no problem occurs, the authorization serve answers back with an
+        access token, and optionally a refresh token (see page
+        \pageref{sec:refresh-token})
 \end{enumerate}
+
+Authorization codes are unique, when an authorization request is performed, a
+new authorization code is specifically created for that request.
+
+If an authorization code is used more than once, the authorization request must
+deny the subsequent requests.
+
+
+\begin{figure}[h!]
+    \begin{lstlisting}[label={lst:code}, caption={Obtain the access token with grant type authorization code}]
+#!/usr/bin/env python3
+from urllib.parse import urlencode
+
+# [A] Performing user redirect
+querystring = urlencode({
+    'response_type': 'code',
+    'client_id':     'YOUR-CLIENT-ID',
+    'redirect_uri':  'http://localhost:8080',
+    'scope':         'https://www.googleapis.com/auth/drive.file',
+    'state':         '123-EXAMPLE'
+})
+
+redirect_to = (
+    f'https://accounts.google.com/o/oauth2/v2/auth?{querystring}'
+)
+
+print(f'Open in your browser: {redirect_to}')
+
+
+# [A] Wait for for user-agent redirect
+import http.server
+from urllib.parse import urlparse, parse_qs
+
+handler = http.server.SimpleHTTPRequestHandler
+
+print('Waiting for authorization...')
+with http.server.HTTPServer(('', port), handler) as server:
+    sock, _ = server.get_request()
+    raw_http = sock.recv(2048).decode('utf-8')
+
+raw_url, _ = raw_http.split('\r\n', 1)
+request_url = urlparse(raw_url)
+
+params = parse_qs(request_url.query)
+auth_code = params['code'][0]
+
+
+# [D] Exchange authorization code with access token:
+import os, requests, pprint
+
+print(f'Authorization code: {auth_code}')
+response = requests.post('https://oauth2.googleapis.com/token', json={
+    'code':          auth_code,
+    'client_id':     os.environ['YOUR-CLIENT-ID'],
+    'client_secret': os.environ['YOUR-CLIENT-SECRET'],
+    'redirect_uri':  f'http://localhost:{port}',
+    'grant_type':    'authorization_code'
+})
+
+jresp = response.json()
+access_token = jresp['access_token']
+pprint.pprint(jresp)
+
+\end{lstlisting}
+\end{figure}
 
 \subsection{Revoke an access token}
 By requirements, an OAuth2 authentication server must expose an endpoint for
 revoking the validity of a particular token.
-
-In case the authentication is performed via JWT (see page \pageref{jwt})
-Something something
-
-\subsection{The protocol}
-
-It starts with a specifically crafted URL, where the user agent will be
-redirected when the client needs to access the protected resources:
-
-\begin{lstlisting}
-https://www.googleapis.com
-    ?redirect_uri=http://localhost:3030
-    &client_id=
-    &scope=email read-contacts
-    &grant=code
-\end{lstlisting}
-
-Besides the host, it includes extra
-information that says what the host should do, they include the registered
-application, the redirect uri (once discord is done the authorization the host
-will send you there). Response type is for saying that you want a code back, and
-scope is the actual data that you want to access.
-
-The URL contains a query string
-It starts with a specifically crafted redirect URL, that the clients
-redirects the user to.
-The URL points to the authorization's server, and it contains parameters in the
-form of a query string. Here is an example:
-
-\begin{lstlisting}
-import urllib.request
-
-callback_url = urllib.request.quote('http://localhost:8080')
-client_id = 'YOUR-CLIENT-ID-HERE'
-
-querystring = urlencode({
-    'redirect_uri': callback_url,
-    'client_id':    client_id,
-    'grant_type':   'code'
-})
-
-redirect_to = f'https://www.googleapis.com?{querystring}'
-\end{lstlisting}
-
-
-\begin{itemize}
-    \item  redirect uri, where the client will be redirect after authorization.
-    \item  response type: type of the information the client expects to receive
-        (most common code, (authorization code))
-    \item  scope: permission that the client wants
-    \item  consent: authorization server takes the scopes and verifies whether or not
-        it want to give client permissions
-    \item  client\_id: used to identify the client with the authorization server
-    \item  client\_secret: secret password that only client and authorization server knows
-    \item  \texttt{auth\_code}: short lived code that server sends to the client
-    \item access\_token: key the client will use to communicate with the resource server.
-\end{itemize}
-
-In the login prompt, users sees the assertion that will be inserted in the
-OAuth2 JWT.
