@@ -1,29 +1,36 @@
 \section{OpenID connect}
 \label{openid}
-As we have seen so far, OAuth2 is designed only to grant authorization.
+% TODO
+As seen so far, we can describe OAuth2 as an extensible authorization
+framework, that can provide access token by using the right grant type in the
+right circumstance.
 
-To make an example, OAuth2 access tokens, are like a car key: they grant you
-permission to drive the car, but they don't tell anything about the owner's
-identity.
+But what if need to get some informations on the authenticated user who just
+performed this request?
+For example, what if we want to authenticate only using the authorization
+server, and treat the access token as a "user session"?
 
-But what if we want to know some information about the user that is performing a
-specific request?
-OAuth2 does not provide anything out of the box. In the past companies like
+A simple solution would be to expose an endpoint to our resource server, where
+we could retrieve user informations information by providing the access token.
+
+This is easily doable, but what if some day we want to switch to another identity provider?
+The endpoint almost certainly be different, and we would need to adapt our
+application.
+
+
+To solve this problem, in the past companies like
 Facebook  and Google found their own way to perform authentication using OAuth2
 (see Facebook Connect).
-To prevent the creation of half a billion of more protocol, the OpenID Connect
-standard was born.
-
+To prevent the creation of half a billion protocols, the OpenID Connect
+was created.
 
 OpenID Connect (OIDC) is a thin layer build on top of OAuth2.0 that adds
 authentication capabilities.
 
+
 The access token, previously not used by the client, is now a JWT (page
 \pageref{jwt}), which contains the authorized scopes, and informations about the
 user that granted those permissions.
-
-In other words, the access token is now a badge, which not only gives
-permissions, but also contains some basic informations about who you are.
 
 \subsection{Example of OpenID redirect uri}
 
@@ -43,10 +50,12 @@ redirect_to = (
 )
 \end{lstlisting}
 Notice any difference with the one at page \pageref{lst:authorization-code}?
+\\
+OpenID requests are recognizable by the \texttt{openid} scope, included in the
+scope lists.
 
-The OpenID requests in the OAuth2 protocol are easily recognizable by the
-'openid' included in the scope list.
-
+% TODO: are id-tokens different from authorization-tokens: yes
+% TODO: https://www.c-sharpcorner.com/article/accesstoken-vs-id-token-vs-refresh-token-what-whywhen/
 \subsection{Single Sign On and Identity Provider}
 OIDC establish a client to perform a login session.
 When an authorization server supports OIDC it referred as an identity provider,
