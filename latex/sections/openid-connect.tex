@@ -28,9 +28,8 @@ OpenID Connect (OIDC) is a thin layer build on top of OAuth2.0 that adds
 authentication capabilities.
 
 
-The access token, previously not used by the client, is now a JWT (page
-\pageref{jwt}), which contains the authorized scopes, and informations about the
-user that granted those permissions.
+Alongside the access token, a JWT (more on JWTs at page \pageref{jwt}) is
+returned, which takes the name of \textbf{id token}.
 
 \subsection{Example of OpenID redirect uri}
 
@@ -49,6 +48,16 @@ redirect_to = (
    f'https://accounts.google.com/o/oauth2/v2/auth?{querystring}'
 )
 \end{lstlisting}
+
+Successful authentication response:
+\begin{lstlisting}
+HTTP/1.1 302 Found
+Location: https://client.example.org/cb#
+  code=SplxlOBeZQQYbYS6WxSbIA
+  &id_token=eyJ0 ... NiJ9.eyJ1c ... I6IjIifX0.DeWt4Qu ... ZXso
+  &state=af0ifjsldkj
+\end{lstlisting}
+
 Notice any difference with the one at page \pageref{lst:authorization-code}?
 \\
 OpenID requests are recognizable by the \texttt{openid} scope, included in the
