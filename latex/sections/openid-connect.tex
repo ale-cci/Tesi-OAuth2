@@ -2,40 +2,42 @@
 \label{openid}
 % TODO
 As seen so far, we can describe OAuth2 as an extensible authorization
-framework, that can provide access token by using the right grant type in the
+framework, which can provide an access token using the right grant type in the
 right circumstance.
 
-But what if need to get some informations on the authenticated user who just
-performed this request?
-For example, what if we want to authenticate only using the authorization
-server, and treat the access token as a "user session"?
+But what if in our authorized requests we want to know how performed them?
+Out of the box, OAuth2 does not provide anything standard to work with that.
 
-A simple solution would be to expose an endpoint to our resource server, where
-we could retrieve user informations information by providing the access token.
+A simple solution would be to expose an endpoint to our authorization server,
+in which we could retrieve user informations information by providing the
+access token.
 
-This is easily doable, but what if some day we want to switch to another identity provider?
-The endpoint almost certainly be different, and we would need to adapt our
-application.
+Since this is a fairly common problem, years ago, companies like Google and
+Facebook found their own solution (see Facebook Connect), and to prevent the
+creation of half a billion more protocols, OpenID Connect has been invented.
 
+OpenID is a thin layer, built on top of OAuth2, that adds the ability to perform
+the user authentication using the authorization provider when obtaining the access token.
 
-To solve this problem, in the past companies like
-Facebook  and Google found their own way to perform authentication using OAuth2
-(see Facebook Connect).
-To prevent the creation of half a billion protocols, the OpenID Connect
-was created.
+This is done by returning an extra token, called \textbf{id token}, alongside
+the access token, that contains basic informations about the user identity.
 
-OpenID Connect (OIDC) is a thin layer build on top of OAuth2.0 that adds
-authentication capabilities.
+Here is a redirection example after a successful authentication:
+\begin{lstlisting}
+HTTP/1.1 302 Found
+Location: https://client.example.org/cb
+  ?code=SplxlOBeZQQYbYS6WxSbIA
+  &id_token=eyJ0NiJ9[...]ZXso
+  &state=af0ifjsldkj
+\end{lstlisting}
 
+\subsection{Obtaining the idToken}
+The steps performed to obtain the id token are exactly the same as for obtaining the access token.
+The only requirement is to add \texttt{openid} in the list of scopes and voilà! The response now contains the id token too.
 
-Alongside the access token, a JWT (more on JWTs at page \pageref{jwt}) is
-returned, which takes the name of \textbf{id token}.
-
-\subsection{Example of OpenID redirect uri}
+To make a quick comparison with the OAuth2 standard request, here is how you obtain the id token. Feel free to compare it with the one at page \pageref{lst:authorization-code}:
 
 \begin{lstlisting}
-from urllib.parse import urlencode
-
 querystring = urlencode({
    'response_type': 'code',
    'client_id':     'YOUR-CLIENT-ID',
@@ -49,69 +51,137 @@ redirect_to = (
 )
 \end{lstlisting}
 
-Successful authentication response:
-\begin{lstlisting}
-HTTP/1.1 302 Found
-Location: https://client.example.org/cb#
-  code=SplxlOBeZQQYbYS6WxSbIA
-  &id_token=eyJ0 ... NiJ9.eyJ1c ... I6IjIifX0.DeWt4Qu ... ZXso
-  &state=af0ifjsldkj
+\subsection{Obtaining user information about the authenticated user}
+Earlier i have said that id tokens are issued by the authorization server, and contain some basic information about the authorized user.
+But how are these information stored? And how can we read them?
+
+In figure \ref{fig:id_token} you could see the id token we will take as example
+(i have added new line characters to improve the readability).
+
+\begin{figure}[h]
+\begin{verbatim}
+eyJhbGciOiAiUlMyNTYiLCAia2lkIjogIjEiLCAidHlwIjogIkpXVCJ9.
+eyJhdXRocyI6ICIiLCAiaXNzIjogImh0dHBzOi8vbG9jYWxob3N0OjgwMDAiLCAic3V
+iIjogMiwgImlhdCI6IDE2MTQzNzI0MzUuMDM4MTg4NywgImV4cCI6IDE2MTQzNzYwMz
+UuMDM4MTg4N30.
+slCAkhLRu9w-rBhmLUh487UPrqkJF1cBpXE5LyWRR1KH1XcPA_QW_uen06p7eHI
+GNKs6zSttlz0metnTjyuPFtkuU7I9Tu1djF2b5qVxOjbeDjGr_7ESuJZakKa7ljMloR
+bEW65FRpTGllIPBmFOqp8VXlM1h30ogT_Mm-zl1DoSUcIIhrDT3qFEGvRz3nw049g2R
+0hkTPrQK-J4bkG-7vf9f9H_PKOel2l2JtKk-3kZ-l8JNKpqM29BVpTRJzmuxNsZMwVP
+JJtt-hqBinTFJ15YHwKf_hKT3bjybibmm2ciXjFHvK3p4HREdXwvsR7A4la4dto4FCt
+V09IG1L9eF0kyjFkLdu2Unz7kf2YFz4fHvU7KPizJt3hPJASi_l8HJoBd1Y7sTPsjxf
+IUycjgGp0yc7qwGl9ZuQmDXZ3dMj4VpBIEKGNMVbwU8IzInIFuC9R-NpqI961YCWxJ0
+Qnly5rrHtw3EJy9GjW8u5cJkY7w0lJCbpvfULMqNpznSXKC0WaoictP7d80CKc9LwER
+cyZY8kg4PMbZGhc2VHdEyGL4r1xZDqxZhdAYFMXRSs4DVJk5GkISyBmo2kE0rR3QYTA
+NIuB80vbjuN9IzX6TTEPfFbvPdFd7oTrmN_xhR_uMu0Omv8f0o0bvXDeYRg1fL6AWFa
+BOYO1qWCdTxj7r8as
+\end{verbatim}
+\caption{Example of id token}
+\label{fig:id_token}
+\end{figure}
+
+If you have a trained eye, you will see that contains two dots, and it's
+encoded in something that reminds \texttt{base64}.
+In fact, those two dots divide the id token in three parts
+
+\begin{enumerate}
+    \item the \textbf{head}, which contains information about how the token has been created.
+    \item the \textbf{body}, aka the content of the token
+    \item and finally the \textbf{signature}, which is used to verify the token authenticity.
+\end{enumerate}
+
+Each section is encoded in \texttt{base64} and afterwards the padding is
+removed, and each occurrence of the characters \texttt{\/} and \texttt{+}  are
+replaced with \texttt{\_} and \texttt{-} respectively.
+
+So, in order to decode the content of the id token we have to perform the two steps in reverse order
+
+\begin{lstlisting}[label=lst:decode-jwt, caption=Decode JWT chunks]
+import base64
+
+def decode(chunk):
+    # 1. replace the characters
+    chunk_1 = chunk.replace('-', '+').replace('_', '/')
+
+    # 2. Re-insert the padding
+    chunk_2 = chunk_1 + '=='
+
+    # 3. Decode
+    return base64.b64decode(chunk_2)
+
+if __name__ == '__main__':
+    id_token = 'eyJhbGciOiAiUl[...]BOYO1qWCdTxj7r8as'
+    head, body, signature = id_token.split('.')
+
+    head_decoded = decode(head)
+    body_decoded = decode(body)
+    sig_decoded = decode(signature)
 \end{lstlisting}
 
-Notice any difference with the one at page \pageref{lst:authorization-code}?
-\\
-OpenID requests are recognizable by the \texttt{openid} scope, included in the
-scope lists.
 
+This specific way of packing informations takes the name of \acl{jwt}.
+At page \pageref{jwt} we will see how to interpret the content of the head and how the signature is calculated.
+For now let's take a look at the body:
+
+\begin{lstlisting}
+>>> import json
+>>> json.loads(body_decoded)
+{'auths': '',
+ 'iss': 'https://localhost:8000',
+ 'sub': 2,
+ 'iat': 1614372435.0381887,
+ 'exp': 1614376035.0381887}
+\end{lstlisting}
+
+Here we start to see some interesting fields:
+\begin{itemize}
+    \item \acs{iss}: \acl{iss}, who has created the JWT
+    \item \texttt{sub}: Subscriber identity, uniquely identifies the owner of
+        the JWT in the authentication server.
+    \item \texttt{iat}: Issued at, unix timestamp of when was created
+    \item \texttt{exp}: Expiry, unix timestamp of when the token will expire
+\end{itemize}
+The authorization server could any extra informations using custom fields, not
+defined by the specification, like \texttt{auths}.
+
+It is important to not re-invent the wheel.
+OpenID specification defines a list of fields (called claims), most of them
+optional, which could be included in the JWT (full list at page \pageref{sec:openid-claims}).
+In this way, if you need to add to your JWT something like an email or a phone number,
+you don't have to invent the object key name by yourself.
 % TODO: are id-tokens different from authorization-tokens: yes
 % TODO: https://www.c-sharpcorner.com/article/accesstoken-vs-id-token-vs-refresh-token-what-whywhen/
+
 \subsection{Single Sign On and Identity Provider}
-OIDC establish a client to perform a login session.
-When an authorization server supports OIDC it referred as an identity provider,
-since it provides information about the resource owner back to the client.
+When an authorization server supports OIDC, it is referred as an
+\textbf{Identity Provider}, since it provides informations about the owner,
+back to the clients.
 
 OpenID connect, enables scenarios where one login can be shared among multiple
-applications. It is also known as single sign on.
-For example an application can support single-sign-on (SSO) with social networking services (i.e.
+applications. This is also known as single sign on.
+
+For example an application can support single-sign-on (SSO) using social networking services (i.e.
 Facebook or Twitter) so that a user can use a login that he already has and it's
-comfortable using it.
-
-Example with ATM. ATM is the client and it communicates with the bank. The bank
-card is the token issued by the bank. Not only gives access to the ATM to your
-bank account, but holds some basic information about you, when the card expires
-and why you are.
-ATM cannot work without the infrastructure of the bank.
-
-On top of OAuth2, a specific scope of OpenID is used. The authorization server
-goes to all the steps listed before and issues the client an authorization code
-via the client's browser.
-The key difference is that the client receives both an access token and an id
-token.
-
-ID token is a specifically formatted token (JWT). Client can extract your user
-id, your email, when you logged in, when it expires, and it can tell if anyone
-has tried to tamper with the JWT.
-
-Fields contained in the JWT are called claims.
-There is also a standard way that a client can ask additional information from the
-authorization server, such as the email address.
-
-The full list of OpenID Connect specification reserved scopes is reported at
-page \pageref{openid}.
+comfortable using it, instead of creating another identity on the client application.
 
 \subsection{Get more informations about authenticated users}
-OpenID specification defines a protected OAuth2 endpoint, that returns
-additional informations (claims) about the authenticated end-user.
-To obtain the requested claims, the client makes a request to the userinfo
-endpoint, using an access token obtained through OpenID Connect
-Authentication.
+If you think that the informations provided in the id token are not enough for
+your client application, OpenID specification defines a protected OAuth2
+endpoint, called \textbf{userinfo}, which is used to return additional data
+about the authenticated end-user.
 
-The response claims are normally represented by a JSON objet that contains a
+To call this endpoint, the client makes a request using the access token,
+obtained through the OpenID Connect authentication.
+
+The response claims are normally represented by a JSON object that contains a
 collection of name and value pair of each claim.
 
-If the UserInfo response is signed and/or encrypted, then the claims are
-returned in a JWT and the content-type MUST be \texttt{application/jwt}.
-The response may also be encrypted without being signed.
+If the userinfo response is signed and/or encrypted, then the claims are
+returned in a JWT and the content-type must be \texttt{application/jwt}.
 
-
-%==============================================================================
+Here is an example of userinfo request:
+\begin{lstlisting}
+requests.get('http://localhost:8000/userinfo', headers={
+    'Authorization': f'Bearer {access_token}'
+})
+\end{lstlisting}
