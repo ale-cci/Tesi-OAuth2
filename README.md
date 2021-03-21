@@ -4,7 +4,7 @@
 
 ##### Compile tex files
 ```sh
-$ docker-compose up xelatex
+$ docker-compose up latex-tesi latex-summary
 ```
 
 ##### Jupiter Notebook
@@ -20,5 +20,6 @@ Now go to [http://localhost:3333](http://localhost:3333/notebooks/OAuth2-present
 In order to make all steps work you have to configure a google cloud project (extra steps are required)
 
 ##### Useful links
+* [Summary (IT)](https://bitbucket.org/ale-cci/tesi-oauth2/downloads/summary.pdf)
 * [PDF](https://bitbucket.org/ale-cci/tesi-oauth2/downloads/oauth2.pdf)
 * [Official OAuth protocol documentation](https://oauth.net/2/)

@@ -21,7 +21,7 @@ services:
     environment:
       PDFNAME: oauth
 
-  latex-riassunto:
+  latex-summary:
     image: alecci/xelatex:latest
     build: ./latex
     volumes:
