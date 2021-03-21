@@ -1,21 +1,29 @@
 pipelines:
   branches:
     master:
-    - step:
-        name: 'Build PDF'
-        script:
-          - docker run --rm -v $PWD/latex:/data alecci/xelatex:latest
-          - pipe: atlassian/bitbucket-upload-file:0.1.2
-            variables:
-              BITBUCKET_USERNAME: $BITBUCKET_USERNAME
-              BITBUCKET_APP_PASSWORD: $BITBUCKET_APP_PASSWORD
-              FILENAME: "latex/oauth2.pdf"
-          - pipe: atlassian/bitbucket-upload-file:0.1.2
-            variables:
-              BITBUCKET_USERNAME: $BITBUCKET_USERNAME
-              BITBUCKET_APP_PASSWORD: $BITBUCKET_APP_PASSWORD
-              FILENAME: "latex/summary.pdf"
-        services:
-          - docker
-        caches:
-          - docker
+      parallel:
+      - step:
+          name: 'Build PDF Tesi'
+          script:
+            - docker run --rm -e PDFNAME=oauth2 -v $PWD/latex:/data alecci/xelatex:latest
+            - pipe: atlassian/bitbucket-upload-file:0.1.2
+              variables:
+                BITBUCKET_USERNAME: $BITBUCKET_USERNAME
+                BITBUCKET_APP_PASSWORD: $BITBUCKET_APP_PASSWORD
+                FILENAME: "latex/oauth2.pdf"
+          services:
+            - docker
+          caches:
+            - docker
+      - step:
+          script:
+            - docker run --rm -e PDFNAME=summary -v $PWD/latex:/data alecci/xelatex:latest
+            - pipe: atlassian/bitbucket-upload-file:0.1.2
+              variables:
+                BITBUCKET_USERNAME: $BITBUCKET_USERNAME
+                BITBUCKET_APP_PASSWORD: $BITBUCKET_APP_PASSWORD
+                FILENAME: "latex/summary.pdf"
+          services:
+            - docker
+          caches:
+            - docker
