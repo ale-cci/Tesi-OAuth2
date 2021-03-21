@@ -10,7 +10,7 @@ pipelines:
               variables:
                 BITBUCKET_USERNAME: $BITBUCKET_USERNAME
                 BITBUCKET_APP_PASSWORD: $BITBUCKET_APP_PASSWORD
-                FILENAME: "latex/oauth2.pdf"
+                FILENAME: latex/oauth2.pdf
           services:
             - docker
           caches:
@@ -23,7 +23,7 @@ pipelines:
               variables:
                 BITBUCKET_USERNAME: $BITBUCKET_USERNAME
                 BITBUCKET_APP_PASSWORD: $BITBUCKET_APP_PASSWORD
-                FILENAME: "latex/summary.pdf"
+                FILENAME: latex/summary.pdf
           services:
             - docker
           caches:

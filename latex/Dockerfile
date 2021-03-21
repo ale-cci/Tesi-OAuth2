@@ -1,4 +1,5 @@
 FROM ubuntu:20.04
+LABEL maintainer="ale-cci"
 
 # Install XeTeX
 ENV DEBIAN_FRONTEND=noninteractive
