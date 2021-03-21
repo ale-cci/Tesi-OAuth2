@@ -1,7 +1,7 @@
 pipelines:
   branches:
     master:
-      parallel:
+    - parallel:
       - step:
           name: 'Build PDF Tesi'
           script:
