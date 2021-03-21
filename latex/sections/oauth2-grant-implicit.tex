@@ -57,11 +57,20 @@ permissions, as a GET parameter in the redirect URL.
         The users authenticates and chooses to grant or deny the
         authorization.
     \item[(C)]
-        The access token is returned as GET parameter from the authorization
-        server to the client application (if the request was accepted).
+        The authorization server issues a redirect to the callback URL,
+        containing the access token as GET parameter.
 
     \item[(D)]
-        % TODO
+        The user agent follows the redirect, exposing to the client application the access token.
+    \item[(E)]
+        The clients provides the javascript code, used to extract the access token and clean up the
+        URL parameters to the user agent.
+        \\
+        This way, once it is executed, no other application could read the access token anymore.
+    \item[(F)]
+        The user agent executes the provided script, and extracts the access token.
+    \item [(G)]
+        User agent provides the access token to the client application.
 \end{enumerate}
 
 
