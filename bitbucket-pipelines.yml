@@ -16,6 +16,7 @@ pipelines:
           caches:
             - docker
       - step:
+          name: 'Build PDF Summary'
           script:
             - docker run --rm -e PDFNAME=summary -v $PWD/latex:/data alecci/xelatex:latest
             - pipe: atlassian/bitbucket-upload-file:0.1.2
