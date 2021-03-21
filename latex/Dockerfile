@@ -15,4 +15,4 @@ RUN apt-get update && apt-get --no-install-recommends install -y \
         rm -rf /var/lib/apt/lists/*
 
 WORKDIR /data
-CMD rubber --pdf oauth2 && rubber --clean oauth2
+CMD rubber --pdf "$PDFNAME" && rubber --clean "$PDFNAME"

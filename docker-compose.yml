@@ -12,10 +12,21 @@ services:
     volumes:
       - ./notebook/OAuth2-presentation.ipynb:/notebook/OAuth2-presentation.ipynb
 
-  xelatex:
+  latex-tesi:
     image: alecci/xelatex:latest
     build: ./latex
     volumes:
       - ./latex:/data
       - ./latex/res/:/data/res
+    environment:
+      PDFNAME: oauth
+
+  latex-riassunto:
+    image: alecci/xelatex:latest
+    build: ./latex
+    volumes:
+      - ./latex:/data
+      - ./latex/res/:/data/res
+    environment:
+      PDFNAME: summary
 
